@@ -1,5 +1,7 @@
 import requests
 import json
+import pandas as pd
+from collections import namedtuple
 
 
 class Wolt:
@@ -85,33 +87,76 @@ class Wolt_Meals:
         self.o_id = __data__['_id']['$oid']
         self.alcohol_percentage = __data__['alcohol_percentage']
         self.allowed_delivery_methods = __data__['allowed_delivery_methods']
-        self.baseprice = __data__['baseprice']
-        self.image = __data__.get("image")
+        self.price = __data__['baseprice']
         self.name = __data__['name'][0]['value']
 
+def create_restaurant_df(rest_dict: dict) -> pd.DataFrame:
+    """
+    :param rest_dict: a dictionary containing all the information about the restaurant
+    :return: a pandas dataframe containing all the information about the restaurant
+    """
+    df = pd.DataFrame(rest_dict)
+    df.set_index('oid', inplace=True)
+    return df
 
+class Restaurant:
+    def __init__(self, name: str, wolt: Wolt, lat_lon: dict):
+        self.is_valid = True
+        restaurant = wolt.serach_restaurant(name=name, lat=lat_lon['lat'], lon=lat_lon['lng'])
+        if not restaurant:
+            self.is_valid = False
+            return
+        self.name = name
+        restaurant = restaurant[0]['value']
+        # general info about the restaurant
+        self.is_active = restaurant['alive']
+        self.id = restaurant['id']['$oid']
+        self.location = restaurant['location']['coordinates']
+        self.address = restaurant['address']
+        self.city = restaurant['city']
+        self.rating = restaurant['rating']['score']
 
-if __name__ == '__main__':
+        # food
+        self.menu = []
+        MenuItem = namedtuple("MenuItem", "name price alcohol_percentage")
+        temp_menu = wolt.get_restaurant_menu(restaurant['active_menu']['$oid']).meals
+        for item in temp_menu:
+            if "homedelivery" in item.allowed_delivery_methods:
+                self.menu.append(MenuItem(item.name, item.price, item.alcohol_percentage))
+        self.food_categories = restaurant['food_tags']
+
+        # delivery
+        self.delivery_methods = restaurant['delivery_methods']
+        self.delivery_estimation = restaurant['estimates']['delivery']['mean']
+        self.prep_estimation = restaurant['estimates']['preparation']['mean']
+        self.delivery_price = restaurant['delivery_specs']['delivery_pricing']['base_price']
+
+        # opening hours
+        self.open_sunday = restaurant['opening_times']['sunday']
+        self.open_monday = restaurant['opening_times']['monday']
+        self.open_tuesday = restaurant['opening_times']['tuesday']
+        self.open_wednesday = restaurant['opening_times']['wednesday']
+        self.open_thursday = restaurant['opening_times']['thursday']
+        self.open_friday = restaurant['opening_times']['friday']
+        self.open_saturday = restaurant['opening_times']['saturday']
+
+def get_restaurant_list():
     wolt = Wolt()
 
     # Get the matching streets
     cities = wolt.get_matching_cities('Allenby')
 
-    # Select the first place (Allenby, Tel-Aviv Yafo)
-    # and get the latitude and longitude of it
+    # Select the first place (Allenby, Tel-Aviv Yafo) and get the lat and long of it
     city = cities[0]['place_id']
     lat_lon = wolt.get_lat_lon(city)
-    print(lat_lon)
+    restaurants = []
+    for restaurant in wolt.get_nearby_restaurants(lat_lon['lat'], lat_lon['lng']):
+        rest_obj = Restaurant(restaurant['title'], wolt, lat_lon)
+        if rest_obj.is_valid and rest_obj.is_active:
+            restaurants.append(Restaurant(restaurant['title'], wolt, lat_lon))
+    return restaurants
 
-    # Pass the latitude and longitude to get all nearby restaurants
-    restaurants = wolt.get_nearby_restaurants(lat_lon['lat'], lat_lon['lng'])
-    print(restaurants[8])
-    name = restaurants[8]['title']
-    restaurant = wolt.serach_restaurant(name=name, lat=lat_lon['lat'], lon=lat_lon['lng'])
-    print(restaurant)
 
-    oid = restaurant[0]['value']['active_menu']['$oid']
-
-    # find restaurant menu by her oid (wold id) the search return wolt rest obeject
-    menu = wolt.get_restaurant_menu(oid)  # the oid can be find at the last function u can find him;
-    print(menu)
+if __name__ == '__main__':
+    restaurants = get_restaurant_list()
+    print(restaurants[0].name)
