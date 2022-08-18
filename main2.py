@@ -13,9 +13,9 @@ class Wolt:
     PLACES_URL = 'https://restaurant-api.wolt.com/v1/google/places/autocomplete/json'
     GOOGLE_GEOCODE_URL = 'https://restaurant-api.wolt.com/v1/google/geocode/json'
     DELIVERY_URL = 'https://restaurant-api.wolt.com/v1/pages/delivery'
+
     def __init__(self):
         self.__wolt_api_url = "https://restaurant-api.wolt.com"
-
 
     def get_matching_cities(self, street):
         """
@@ -89,6 +89,12 @@ class Wolt_Meals:
         self.allowed_delivery_methods = __data__['allowed_delivery_methods']
         self.price = __data__['baseprice']
         self.name = __data__['name'][0]['value']
+        try:
+            self.image = __data__['image']
+        except KeyError:
+            self.image = None
+        self.days = __data__['times'][0]['visible_days_of_week']
+
 
 def create_restaurant_df(rest_dict: dict) -> pd.DataFrame:
     """
@@ -99,64 +105,89 @@ def create_restaurant_df(rest_dict: dict) -> pd.DataFrame:
     df.set_index('oid', inplace=True)
     return df
 
+
 class Restaurant:
+    '''
+    A class that represents a parsed restaurant object
+    '''
+
     def __init__(self, name: str, wolt: Wolt, lat_lon: dict):
         self.is_valid = True
         restaurant = wolt.serach_restaurant(name=name, lat=lat_lon['lat'], lon=lat_lon['lng'])
-        if not restaurant:
+        if not restaurant or restaurant[0]['value']['product_line'] != 'restaurant' \
+                or 'homedelivery' not in restaurant[0]['value']['delivery_methods']:
             self.is_valid = False
             return
         self.name = name
         restaurant = restaurant[0]['value']
+
         # general info about the restaurant
-        self.is_active = restaurant['alive']
+        self.is_active = restaurant['online']
         self.id = restaurant['id']['$oid']
         self.location = restaurant['location']['coordinates']
         self.address = restaurant['address']
         self.city = restaurant['city']
-        self.rating = restaurant['rating']['score']
+        try:
+            self.rating = restaurant['rating']['score']
+        except KeyError:
+            self.rating = None
 
         # food
         self.menu = []
-        MenuItem = namedtuple("MenuItem", "name price alcohol_percentage")
-        temp_menu = wolt.get_restaurant_menu(restaurant['active_menu']['$oid']).meals
-        for item in temp_menu:
-            if "homedelivery" in item.allowed_delivery_methods:
-                self.menu.append(MenuItem(item.name, item.price, item.alcohol_percentage))
+        self.__fill_restaurant_menu(wolt, restaurant)
         self.food_categories = restaurant['food_tags']
+        self.kosher = "kosher" in self.food_categories
 
         # delivery
-        self.delivery_methods = restaurant['delivery_methods']
         self.delivery_estimation = restaurant['estimates']['delivery']['mean']
         self.prep_estimation = restaurant['estimates']['preparation']['mean']
-        self.delivery_price = restaurant['delivery_specs']['delivery_pricing']['base_price']
+        self.delivery_price = restaurant['delivery_specs']['delivery_pricing']['base_price'] / 100
 
         # opening hours
-        self.open_sunday = restaurant['opening_times']['sunday']
-        self.open_monday = restaurant['opening_times']['monday']
-        self.open_tuesday = restaurant['opening_times']['tuesday']
-        self.open_wednesday = restaurant['opening_times']['wednesday']
-        self.open_thursday = restaurant['opening_times']['thursday']
-        self.open_friday = restaurant['opening_times']['friday']
-        self.open_saturday = restaurant['opening_times']['saturday']
+        self.opening_days = list(restaurant['opening_times'].keys())
+
+    def __fill_restaurant_menu(self, wolt: Wolt, restaurant: dict) -> None:
+        """
+        Fills the menu of the restaurant with parsed meal namedtuples that includes
+        info like if the meal is vegetarian, spicy or gluten free.
+        Only keeps meals that are available for delivery and cost more than 20 ILS.
+        :param wolt: Wolt object
+        :param restaurant: restaurant dictionary
+        :return: None
+        """
+        Meal = namedtuple("Meal", "name price alcohol_percentage vegetarian GF spicy image days")
+        temp_menu = wolt.get_restaurant_menu(restaurant['active_menu']['$oid']).meals
+        for item in temp_menu:
+            if "homedelivery" in item.allowed_delivery_methods and (item.price / 100) > 20:
+                is_veg = "vegan" in item.name or "vegetarian" in item.name or "וג'י" in item.name \
+                         or 'טבעוני' in item.name or 'צמחוני' in item.name or "🌱" in item.name
+                is_spicy = "spicy" in item.name or 'חריף' in item.name or 'חריפה' in item.name \
+                           or 'ספייסי' in item.name or '🌶' in item.name
+                gluten_free = "ללא גלוטן" in item.name or "נטול גלוטן" in item.name or "GF" in item.name \
+                              or "🌾" in item.name
+                self.menu.append(Meal(item.name, item.price / 100, item.alcohol_percentage,
+                                      is_veg, gluten_free, is_spicy, item.image, item.days))
+
 
 def get_restaurant_list():
     wolt = Wolt()
 
     # Get the matching streets
-    cities = wolt.get_matching_cities('Allenby')
+    cities = wolt.get_matching_cities('Tel Aviv')
 
     # Select the first place (Allenby, Tel-Aviv Yafo) and get the lat and long of it
     city = cities[0]['place_id']
     lat_lon = wolt.get_lat_lon(city)
     restaurants = []
-    for restaurant in wolt.get_nearby_restaurants(lat_lon['lat'], lat_lon['lng']):
+    potential_restaurants = wolt.get_nearby_restaurants(lat_lon['lat'], lat_lon['lng'])
+    print(len(potential_restaurants))
+    for restaurant in potential_restaurants:
         rest_obj = Restaurant(restaurant['title'], wolt, lat_lon)
         if rest_obj.is_valid and rest_obj.is_active:
-            restaurants.append(Restaurant(restaurant['title'], wolt, lat_lon))
+            restaurants.append(rest_obj)
     return restaurants
 
 
 if __name__ == '__main__':
     restaurants = get_restaurant_list()
-    print(restaurants[0].name)
+    print(len(restaurants))
