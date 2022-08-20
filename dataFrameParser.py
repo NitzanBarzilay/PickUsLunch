@@ -15,14 +15,14 @@ class WoltParser:
         self.file_name = "csv_wolt_19-8-22.csv"
 
     def crate_restaurants_df(self):
-        headers = ["name", "price", "alcohol_percentage", "vegetarian", "GF", "image", "days", "spicy"]
+        headers = ["rest_name" ,"name", "price", "alcohol_percentage", "vegetarian", "GF", "image", "days", "spicy"]
         with open(f"csv_wolt_menus_20-8-22.csv", "w", newline="", encoding='utf-8') as curr_file:
             dw = csv.DictWriter(curr_file, delimiter=",", fieldnames=headers)
             dw.writeheader()
             for rest in self.restaurants:
                 for dish in rest.menu:
                     line_dict = dish._asdict()
-                    line_dict["name"] = rest.name
+                    line_dict["rest_name"] = rest.name
                     dw.writerow(line_dict)
 
     def create_general_df(self):
