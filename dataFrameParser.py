@@ -43,7 +43,7 @@ class WoltParser:
 
 if __name__ == '__main__':
     load = False
-    # restaurants = get_restaurant_list(10)
+    restaurants = get_restaurant_list(10)
 
     # if not load:
     #     with open('rests.pickle', 'wb') as handle:
@@ -52,6 +52,6 @@ if __name__ == '__main__':
     # else:
     #     with open('rests.pickle', 'rb') as handle:
     #         restaurants = pickle.load(handle)
-    file_creator = WoltParser([], False)
+    file_creator = WoltParser(restaurants, True)
     file_creator.read_df()
     print(file_creator.df)
