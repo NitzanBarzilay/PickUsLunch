@@ -40,8 +40,10 @@ def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inp
     M = 1 if ((meal1_df.at[0, 'price'] + meal2_df.at[0, 'price'] + meal2_df.at[
         0, 'price']) >= 100) else 0  # TODO replace with order min
     K = 0 if diners_kosher and not rest['kosher'] else 1
+    DT = rest.at[0, 'delivery estimation [minutes]'] + rest.at[0, 'prep estimation [minutes]']
     D = 0 if (hungry_diners and rest.at[0, 'delivery estimation [minutes]'] + rest.at[
         0, 'prep estimation [minutes]'] >= HUNGRY_MINUTES) else 1
+    RD = rest.at[0, 'rating'] - diners_avg_rating
     R = 1 if diners_avg_rating <= rest.at[0, 'rating'] else 0
     C = diner1_cui + diner2_cui + diner3_cui
 
@@ -69,17 +71,19 @@ def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inp
     PS2 = max_price2 - price2 if PH2 == 1 else 0
     PS3 = max_price3 - price3 if PH3 == 1 else 0
 
-    return [O, M, K, D, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3]
+    return [O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3]
 
 
-def loss(O, M, K, D, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3) -> float:
+def loss(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3) -> float:
     """
     Loss function for the optimization problem.
     based on variables per restaurant (open, minimal order price, kosher, delivery time, rating, cuisines) and per diner (vegetarian, gluten free, alcohol_free, spicy, price).
     :param O: (open) - 1 if the restaurant open 0 otherwise
     :param M: (minimal order price) - 1 if the meal's combination surpasses the restaurant's minimal order price, 0 otherwise
     :param K: (kosher) - 1 if at least one diner eats kosher and the restaurant is kosher or none of the diners eat kosher, 0 otherwise
-    :param D: (delivery time) - based on avg hunger level among the group. if hunger level is high - 1 if the meal is ready in less than 30 minutes, 0 otherwise. if hunger level is low - 1 if the meal is ready in less than 60 minutes, 0 otherwise.
+    :param DT: (delivery time) - delivery time + preparation time in minutes
+    :param D: (delivery) - based on avg hunger level among the group. if hunger level is high - 1 if the meal is ready in less than 30 minutes, 0 otherwise. if hunger level is low - 1 if the meal is ready in less than 60 minutes, 0 otherwise.
+    :param RD: (rating difference) - float on a scale of -9 to 9 - the difference between the restaurant's rating and the average rating of the diners
     :param R: (rating) - 1 if the restaurant is above avg desired minimal rating among the group or does not have a rating, 0 otherwise
     :param C: (cuisines) - 0-3 according to the amount of diners who prefer a cuisine that the restaurant offers.
     :param V1, V2, V3: (vegetarian) 1 if the meal matches the vegetarian desires of the diner, 0 otherwise
@@ -90,4 +94,44 @@ def loss(O, M, K, D, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, 
     :param PS1, PS2, PS3: (price soft) - difference between diner's maximal price and meals price, 0 if the meal's price is higher than the diner's desired maximal meal price
     :return: The loss value of the given inputs, according to the desired hard and soft constraints.
     """
-    return 0
+
+
+    """
+    hard constraints: 
+    in order to be valid, a combination ob a restaurant and 3 meals must fulfill the following constraints:
+    - the restaurant must be open (O)
+    - the sum of prices of all 3 meals must surpass the restaurant's minimal order price (M)
+    - the meal must match the vegetarian preferences of all 3 diners (V1, V2, V3)
+    - the meal must match the gluten preferences of all 3 diners (G1, G2, G3)
+    - the meal must match the alcohol preferences of all 3 diners (A1, A2, A3)    
+    - the meal must be affordable (PH1, PH2, PH3)
+    """
+
+    hard_constraints = O * M * K * V1 * V2 * V3 * G1 * G2 * G3 * A1 * A2 * A3 * PH1 * PH2 * PH3
+    if hard_constraints == 0: # if at least 1 hard constraint is not met, return a loss value of 0
+        return 0
+
+    """
+    soft constraints:
+    - delivery time in minuts (DT)
+    - delivery time matches diners' hunger level (D)
+    - rating difference (RD)
+    - rating (R)
+    - cuisines preferences (C)
+    - spiciness preferences (S1, S2, S3)
+    - price differences (PS1, PS2, PS3)
+    """
+    DELIVERY_W = -1
+    RATING_W = 1
+    CUISINE_W = 1
+    SPICY_W = 1
+    PRICE_W = 2
+
+    loss = (D * DT) / 60 * DELIVERY_W
+    loss += RD * RATING_W
+    loss +=  ((PS1 + PS2 + PS3) / 3) / 10 * PRICE_W
+    loss += C * CUISINE_W
+    loss += (S1 + S2 + S3) * SPICY_W
+
+    return loss
+
