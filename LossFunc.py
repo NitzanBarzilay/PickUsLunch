@@ -14,7 +14,7 @@ def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inp
     :param meal1: name of 1st meal
     :param meal2: name of 2nd meal
     :param meal3: name of 3rd meal
-    :return: a list of inputs for the loss function - [O, M, K, D, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3]
+    :return: a list of inputs for the loss function - [O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3]
     """
 
     rest_df = pd.read_csv("data/csv_wolt_restaurants_19-8-22.csv")
@@ -85,7 +85,7 @@ def loss(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
     :param D: (delivery) - based on avg hunger level among the group. if hunger level is high - 1 if the meal is ready in less than 30 minutes, 0 otherwise. if hunger level is low - 1 if the meal is ready in less than 60 minutes, 0 otherwise.
     :param RD: (rating difference) - float on a scale of -9 to 9 - the difference between the restaurant's rating and the average rating of the diners
     :param R: (rating) - 1 if the restaurant is above avg desired minimal rating among the group or does not have a rating, 0 otherwise
-    :param C: (cuisines) - 0-3 according to the amount of diners who prefer a cuisine that the restaurant offers.
+    :param C: (cuisines) - int  0-3 according to the amount of diners who prefer a cuisine that the restaurant offers.
     :param V1, V2, V3: (vegetarian) 1 if the meal matches the vegetarian desires of the diner, 0 otherwise
     :param G1, G2, G3: (gluten free) - 1 if the meal matches the gluten desires of the diner, 0 otherwise
     :param A1, A2, A3: (alcohol free) - 1 if the meal matches the alcohol desires of the diner, 0 otherwise
@@ -113,7 +113,7 @@ def loss(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
 
     """
     soft constraints:
-    - delivery time in minuts (DT)
+    - delivery time in minutes (DT)
     - delivery time matches diners' hunger level (D)
     - rating difference (RD)
     - rating (R)
