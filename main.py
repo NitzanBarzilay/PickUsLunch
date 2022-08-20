@@ -114,6 +114,7 @@ class Restaurant:
     '''
     A class that represents a parsed restaurant object
     '''
+    MEAL_MIN_PRICE = 30
 
     def __init__(self, name: str, wolt: Wolt, lat_lon: dict):
         self.is_valid = True
@@ -162,7 +163,7 @@ class Restaurant:
         Meal = namedtuple("Meal", "name price alcohol_percentage vegetarian GF spicy image days")
         temp_menu = wolt.get_restaurant_menu(restaurant['active_menu']['$oid']).meals
         for item in temp_menu:
-            if "homedelivery" in item.allowed_delivery_methods and (item.price / 100) > 20:
+            if "homedelivery" in item.allowed_delivery_methods and (item.price / 100) > self.MEAL_MIN_PRICE:
                 is_veg = "vegan" in item.name or "vegetarian" in item.name or "וג'י" in item.name \
                          or 'טבעוני' in item.name or 'צמחוני' in item.name or "🌱" in item.name
                 is_spicy = "spicy" in item.name or 'חריף' in item.name or 'חריפה' in item.name \
