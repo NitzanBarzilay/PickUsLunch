@@ -1,7 +1,11 @@
+import random
+
 import requests
 import json
 import pandas as pd
 from collections import namedtuple
+from time import sleep
+import tqdm
 
 
 class Wolt:
@@ -169,7 +173,7 @@ class Restaurant:
                                       is_veg, gluten_free, is_spicy, item.image, item.days))
 
 
-def get_restaurant_list():
+def get_restaurant_list(number_of_rests= None):
     wolt = Wolt()
 
     # Get the matching streets
@@ -181,8 +185,11 @@ def get_restaurant_list():
     restaurants = []
     potential_restaurants = wolt.get_nearby_restaurants(lat_lon['lat'], lat_lon['lng'])
     print(len(potential_restaurants))
-    for restaurant in potential_restaurants:
+    if number_of_rests:
+        potential_restaurants = potential_restaurants[:number_of_rests]
+    for restaurant in tqdm.tqdm(potential_restaurants):
         rest_obj = Restaurant(restaurant['title'], wolt, lat_lon)
+        sleep(random.uniform(0, 0.1))
         if rest_obj.is_valid and rest_obj.is_active:
             restaurants.append(rest_obj)
     return restaurants
