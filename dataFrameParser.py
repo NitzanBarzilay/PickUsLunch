@@ -25,14 +25,14 @@ class WoltParser:
             for rest in self.restaurants:
                 line_dict = {"name": rest.name, "address": rest.address, "city": rest.city,
                              "delivery estimation [minutes]": rest.delivery_estimation,
-                             "delivery price": rest.delivery_price, "food categories": " ".join(rest.food_categories),
+                             "delivery price": rest.delivery_price, "food categories": "---".join(rest.food_categories),
                              "is active": rest.is_active, "is valid": rest.is_valid, "kosher": rest.kosher,
                              "location lat long": tuple(rest.location), "opening days": " ".join(rest.opening_days),
                              "prep estimation [minutes]": rest.prep_estimation, "rating": rest.rating, "menu": []}
                 meal_lst = []
                 for meal in rest.menu:
                     meal_lst.append(str(meal))
-                line_dict["menu"] = " ".join(meal_lst)
+                line_dict["menu"] = "---".join(meal_lst)
                 dw.writerow(line_dict)
 
     def read_df(self):
