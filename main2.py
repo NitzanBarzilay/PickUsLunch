@@ -169,7 +169,7 @@ class Restaurant:
                            or 'ספייסי' in item.name or '🌶' in item.name
                 gluten_free = "ללא גלוטן" in item.name or "נטול גלוטן" in item.name or "GF" in item.name \
                               or "🌾" in item.name
-                self.menu.append(Meal(item.name, item.price / 100, item.alcohol_percentage,
+                self.menu.append(Meal(item.name, item.price / 100, item.alcohol_percentage / 10.0,
                                       is_veg, gluten_free, is_spicy, item.image, item.days))
 
 
