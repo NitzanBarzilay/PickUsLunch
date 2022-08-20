@@ -13,6 +13,7 @@ class WoltParser:
             self.create_general_df()
             self.crate_restaurants_df()
         self.file_name = "csv_wolt_19-8-22.csv"
+        self.file_name_menus = "csv_wolt_menus_20-8-22.csv"
 
     def crate_restaurants_df(self):
         headers = ["rest_name" ,"name", "price", "alcohol_percentage", "vegetarian", "GF", "image", "days", "spicy"]
@@ -50,6 +51,7 @@ class WoltParser:
 
     def read_df(self):
         self.df = pd.read_csv(self.file_name, encoding="utf-8")
+        self.df_menus = pd.read_csv(self.file_name_menus, encoding="utf-8")
 
 
 if __name__ == '__main__':

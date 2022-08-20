@@ -1,15 +1,78 @@
+import random
+import dataFrameParser
 from simpleai.search import SearchProblem
 from typing import List, Tuple
 from enum import Enum
 
+df = dataFrameParser.WoltParser([], init_files=False)
+
+
+def get_rest_lst(data_frame):
+    rests = []
+    return rests
+
+
+restaurants = get_rest_lst(df)
+
+
+def get_menus_meals(data_frame):
+    our_meals = []
+    return meals
+
+
+meals = get_menus_meals(df)
+
+
+class State:
+    def __init__(self, rest: str, meals: List):
+        self.restaurant = rest
+        self.meals = meals
+
+
+class Action:
+    CHANGE_REST = 0
+    CHANGE_MEAL = 1
+
+    def __init__(self, history):
+        self.history = history
+
+    def get_actions(self):
+        actions = []
+        for i in range(self.history.restaurants):
+            actions.append((self.CHANGE_REST, i))
+        for i in range(len(self.history.meals)):
+            actions.append((self.CHANGE_MEAL, i))
+
+
+class History:
+    def __init__(self, restaurants_path, meals_path):
+        self.history_states = set()
+        self.restaurants = None
+        self.meals = []
+        # TODO: read restaurants and meals
+
+    def check_state(self, state_tuple: Tuple[str]):
+        return state_tuple in self.history_states
+
+    def add_state(self, state_tuple: Tuple[str]):
+        self.history_states.add(state_tuple)
+
+    def check_rest(self, rest):
+        for key in self.history_states:
+            if key[0] == rest:
+                return False
+        return True
+
 
 class WoltProblem(SearchProblem):
+    history = History("", "")
+    action_obj = Action(history)
 
     def result(self, state, action):
         if action[0] == Action.CHANGE_MEAL:
-            return change_meal(state, action[1])
+            return self.change_meal(state, action[1])
         if action[0] == Action.CHANGE_REST:
-            return change_rest_state()
+            return self.change_rest_state(action[1], len(self.history.meals[action[1]]))
 
     def is_goal(self, state):
         pass
@@ -23,51 +86,28 @@ class WoltProblem(SearchProblem):
     def mutate(self, state):
         pass
 
-    def generate_random_state(self):
-        pass
+    def generate_random_state(self, users = 3):
+        rest_index = random.randint(0, len(self.history.restaurants))
+        length_meals = len(self.history.meals[rest_index])
+        return State(self.history.restaurants[rest_index], [self.history.meals[rest_index][random.randint(0, length_meals)] for j in
+                                                   range(users)])
 
     def cost(self, state, action, state2):
-        # TODO: read the right lines from the csv
         pass
 
     def actions(self, state):
-        pass
+        return self.action_obj.get_actions()
 
     def heuristic(self, state):
         pass
 
+    def change_rest_state(self, i, length_meals, users=3) -> State:
+        return State(self.history.restaurants[i], [self.history.meals[i][random.randint(0, length_meals)] for j in
+                                                   range(users)])
 
-class State:
-    def __init__(self, rest, meals: List):
-        self.restaurant = rest
-        self.meals = meals
-
-
-class Action:
-    CHANGE_REST = 0
-    CHANGE_MEAL = 1
-
-    def get_actions(self, length_meals):
-        actions = []
-        for i in range(length_meals):
-            actions.append((self.CHANGE_REST, -1))
-            actions.append((self.CHANGE_MEAL, i))
-
-
-class History:
-    def __init__(self):
-        self.history_states = set()
-
-    def check_state(self, state_tuple: Tuple[str]):
-        return state_tuple in self.history_states
-
-    def add_state(self, state_tuple: Tuple[str]):
-        self.history_states.add(state_tuple)
-
-
-def change_rest_state() -> State:
-    pass
-
-
-def change_meal(state, index) -> State:
-    pass
+    def change_meal(self, state, index) -> State:
+        rest_index = self.history.restaurants.index(state.restaurant)
+        state.meals[index] = \
+            self.history.meals[rest_index] \
+                [random.randint(0, (self.history.meals[rest_index]))]
+        return state
