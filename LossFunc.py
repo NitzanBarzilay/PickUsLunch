@@ -1,11 +1,14 @@
 import numpy as np
 import pandas as pd
 
+HUNGRY_MINUTES = 45
+MUST = 1
+MUST_NOT = 2
+
 
 def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inputs, rest_name, meal1, meal2, meal3):
     """
     Converts the user inputs to the loss function inputs.
-
     :params diner1_inputs, diner2_inputs, diner3_inputs: user input in format of: [0 - kosher, 1 - vegetarian, 2 - gluten free, 3 - alcohol free, 4 - prefer spicy, 5 - max price, 6 - min rating, 7 - hunger level, 8 - desired cuisines, 9 - day]
     :param rest_name: name of the restaurant
     :param meal1: name of 1st meal
@@ -38,7 +41,7 @@ def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inp
         0, 'price']) >= 100) else 0  # TODO replace with order min
     K = 0 if diners_kosher and not rest['kosher'] else 1
     D = 0 if (hungry_diners and rest.at[0, 'delivery estimation [minutes]'] + rest.at[
-        0, 'prep estimation [minutes]'] >= 40) else 1
+        0, 'prep estimation [minutes]'] >= HUNGRY_MINUTES) else 1
     R = 1 if diners_avg_rating <= rest.at[0, 'rating'] else 0
     C = diner1_cui + diner2_cui + diner3_cui
 
@@ -46,19 +49,19 @@ def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inp
     diner_delivery_cost = + rest.at[0, 'delivery price'] / 3
     price1, price2, price3 = meal1_df.at[0, 'price'], meal2_df.at[0, 'price'], meal3_df.at[0, 'price']
 
-    V1 = 0 if vegetarian1 == 1 and not meal1_df.at[0, 'vegetarian'] else 1
-    V2 = 0 if vegetarian2 == 1 and not meal2_df.at[0, 'vegetarian'] else 1
-    V3 = 0 if vegetarian3 == 1 and not meal3_df.at[0, 'vegetarian'] else 1
-    G1 = 0 if gluten_free1 == 1 and not meal1_df.at[0, 'GF'] else 1
-    G2 = 0 if gluten_free2 == 1 and not meal2_df.at[0, 'GF'] else 1
-    G3 = 0 if gluten_free3 == 1 and not meal3_df.at[0, 'GF'] else 1
-    A1 = 0 if alcohol_free1 == 1 and meal1_df.at[0, 'alcohol_percentage'] > 0 else 1
-    A2 = 0 if alcohol_free2 == 1 and meal2_df.at[0, 'alcohol_percentage'] > 0 else 1
-    A3 = 0 if alcohol_free3 == 1 and meal3_df.at[0, 'alcohol_percentage'] > 0 else 1
+    V1 = 0 if vegetarian1 == MUST and not meal1_df.at[0, 'vegetarian'] else 1
+    V2 = 0 if vegetarian2 == MUST and not meal2_df.at[0, 'vegetarian'] else 1
+    V3 = 0 if vegetarian3 == MUST and not meal3_df.at[0, 'vegetarian'] else 1
+    G1 = 0 if gluten_free1 == MUST and not meal1_df.at[0, 'GF'] else 1
+    G2 = 0 if gluten_free2 == MUST and not meal2_df.at[0, 'GF'] else 1
+    G3 = 0 if gluten_free3 == MUST and not meal3_df.at[0, 'GF'] else 1
+    A1 = 0 if alcohol_free1 == MUST and meal1_df.at[0, 'alcohol_percentage'] > 0 else 1
+    A2 = 0 if alcohol_free2 == MUST and meal2_df.at[0, 'alcohol_percentage'] > 0 else 1
+    A3 = 0 if alcohol_free3 == MUST and meal3_df.at[0, 'alcohol_percentage'] > 0 else 1
     spicy_meal1, spicy_meal2, spicy_meal3 = meal1_df.at[0, 'spicy'], meal2_df.at[0, 'spicy'], meal3_df.at[0, 'spicy']
-    S1 = 0 if (spicy1 == 2 and not spicy_meal1) or (spicy1 == 1 and spicy_meal1) else 1
-    S2 = 0 if (spicy2 == 2 and not spicy_meal2) or (spicy2 == 1 and spicy_meal2) else 1
-    S3 = 0 if (spicy3 == 2 and not spicy_meal3) or (spicy3 == 1 and spicy_meal3) else 1
+    S1 = 0 if (spicy1 == MUST and not spicy_meal1) or (spicy1 == MUST_NOT and spicy_meal1) else 1
+    S2 = 0 if (spicy2 == MUST and not spicy_meal2) or (spicy2 == MUST_NOT and spicy_meal2) else 1
+    S3 = 0 if (spicy3 == MUST and not spicy_meal3) or (spicy3 == MUST_NOT and spicy_meal3) else 1
     PH1 = 1 if price1 + diner_delivery_cost <= max_price1 else 0
     PH2 = 1 if price2 + diner_delivery_cost <= max_price2 else 0
     PH3 = 1 if price3 + diner_delivery_cost <= max_price3 else 0

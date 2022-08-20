@@ -198,18 +198,19 @@ def get_restaurant_list(number_of_rests=None):
 def get_diners_constraints(filename):
     """
     To optimize a meal order for a group of 3, the group must provide a formatted file
-    that contains provide 10 details about each diner's preferences.
+    (see format instructions at the end of the example file) that contains provide
+    10 details about each diner's preferences.
     This function takes a such formatted input file and returns 3 constraint list (one for each diner).
     :param filename: the name of the file containing the diners constraints.
     :return: 3 lists, one10-item list  for each diner that follows the following format:
-    0 - kosher (int - 1 for yes / 0 for no)
-    1 - vegetarian (int - 1 for yes / 0 for no)
-    2 - gluten free (int - 1 for yes / 0 for no)
-    3 - alcohol free (int - 1 for yes / 0 for no)
-    4 - prefer spicy (int - 1 for yes / 0 for no)
+    0 - kosher (int - 1 for kosher / 0 for doesn't matter)
+    1 - vegetarian (int - 1 for vegetarian / 0 for doesn't matter)
+    2 - gluten free (int - 1 for GF / 0 for doesn't matter)
+    3 - alcohol free (int - 1 for alcohol free / 0 for doesn't matter)
+    4 - prefer spicy (int - 2 for not spicy / 1 for spicy / 0 for doesn't matter)
     5 - max price (int - in ILS)
     6 - min rating (int - range from 1 to 10)
-    7 - hunger level (int - 1 for high / 0 for low)
+    7 - hunger level (int - 1 for very hungry / 0 for not so hungry)
     8 - desired cuisines (list(str) - list of strings out of a predefined list)
     9 - weekday (str - lowercase string from sunday to saturday)
     """
