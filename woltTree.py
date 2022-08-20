@@ -2,9 +2,11 @@ import random
 import dataFrameParser
 from simpleai.search import SearchProblem
 from typing import List, Tuple
+import LossFunc
+from simpleai.search import breadth_first
 
 
-# ---------------------------------------------- Helper classes -----------------------------------------------------
+# ---------------------------------------------- Helper classes -------------------------------------------------------
 class State:
     def __init__(self, rest: str, meals: List):
         self.restaurant = rest
@@ -18,12 +20,15 @@ class Action:
     def __init__(self, history):
         self.history = history
 
-    def get_actions(self):
+    def get_actions(self, state, users = 3):
         actions = []
-        for i in range(self.history.restaurants):
+        index = self.history.restaurants.index(state.restaurant)
+        for i in range(len(self.history.restaurants)):
             actions.append((self.CHANGE_REST, i))
-        for i in range(len(self.history.meals)):
-            actions.append((self.CHANGE_MEAL, i))
+        for j in range(len(self.history.meals[index])):
+            for k in range(users):
+                actions.append((self.CHANGE_MEAL, j, k))
+        return actions
 
 
 class History:
@@ -69,15 +74,19 @@ class WoltProblem(SearchProblem):
 
     def result(self, state, action):
         if action[0] == Action.CHANGE_MEAL:
-            return self.change_meal(state, action[1])
+            return self.change_meal(state, action[1], action[2])
         if action[0] == Action.CHANGE_REST:
             return self.change_rest_state(action[1], len(self.history.meals[action[1]]))
 
     def is_goal(self, state):
+        # TODO: check the loss function if all constraints are satisfied.
         pass
 
     def value(self, state):
-        pass
+        return LossFunc.loss(*LossFunc.user_inputs_to_loss_function_inputs(self.constraints[0], self.constraints[1],
+                                                                           self.constraints[2], state.restaurant,
+                                                                           state.meals[0],
+                                                                           state.meals[1], state.meals[2]))
 
     def crossover(self, state1, state2):
         pass
@@ -93,27 +102,29 @@ class WoltProblem(SearchProblem):
                       range(users)])
 
     def cost(self, state, action, state2):
-        pass
+        return self.value(state) - self.value(state2)
 
     def actions(self, state):
-        return self.action_obj.get_actions()
+        return self.action_obj.get_actions(state)
 
     def heuristic(self, state):
         pass
 
     def change_rest_state(self, i, length_meals, users=3) -> State:
-        return State(self.history.restaurants[i], [self.history.meals[i][random.randint(0, length_meals)] for j in
+        return State(self.history.restaurants[i], [self.history.meals[i][random.randint(0, length_meals - 1)] for j in
                                                    range(users)])
 
-    def change_meal(self, state, index) -> State:
+    def change_meal(self, state, index_meal, index_diner) -> State:
         rest_index = self.history.restaurants.index(state.restaurant)
-        state.meals[index] = \
-            self.history.meals[rest_index] \
-                [random.randint(0, (self.history.meals[rest_index]))]
+        meal = random.randint(0, len(self.history.meals[rest_index]) - 1)
+        while meal == index_meal:
+            meal = random.randint(0, len(self.history.meals[rest_index]) - 1)
+        state.meals[index_diner] = \
+            self.history.meals[rest_index][meal]
         return state
 
 
-# ---------------------------------------------- main  -----------------------------------------------------
+# ---------------------------------------------- main  ---------------------------------------------------------------
 if __name__ == '__main__':
     df = dataFrameParser.WoltParser([], init_files=False)
     df.read_df()
@@ -125,3 +136,8 @@ if __name__ == '__main__':
     action_obj = Action(history)
     print(restaurants)
     print(meals)
+    constraints = [LossFunc.d1, LossFunc.d2, LossFunc.d3]
+    init_state = State(rest="Doron's Jachnun | Tel Aviv", meals=['אננס טבעי ללא סוכר', 'גוג׳י ברי', 'תמר מג׳הול ענק'])
+    problem = WoltProblem(history, action_obj, init_state, constraints)
+    result = breadth_first(problem)
+    print(result)
