@@ -2,6 +2,7 @@ from itertools import combinations_with_replacement, product
 import pandas as pd
 from tqdm import tqdm
 import time
+import datetime
 import LossFunc
 
 CSV_RESTAURANTS     = "csv_wolt_restaurants_19-8-22.csv"
@@ -42,13 +43,11 @@ def naive_search( d1, d2, d3, csv_restaurants = CSV_RESTAURANTS, csv_menus = CSV
                 chosen_restaurant = restaurant_name
                 chosen_restaurant_score = score
                 chosen_restaurant_meals = permutation
-            for i in range(10000):
-                pass
         idx += 1
 
     # calculate the time of the last iteration
     time_elapsed = time.time() - start_time
-    print(f'\nTime elapsed: {time_elapsed}')
+    print(f'\nTime elapsed: {datetime.timedelta(seconds=time_elapsed)}')
     print(f'Number of permutations - {num_of_per}')
     print(f'Chosen restaurant - {chosen_restaurant}')
     print(f'Chosen restaurant score - {chosen_restaurant_score}')
