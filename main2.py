@@ -5,6 +5,7 @@ import pandas as pd
 from collections import namedtuple
 from time import sleep
 import tqdm
+import sys
 
 
 class Wolt:
@@ -172,7 +173,7 @@ class Restaurant:
                                       is_veg, gluten_free, is_spicy, item.image, item.days))
 
 
-def get_restaurant_list(number_of_rests= None):
+def get_restaurant_list(number_of_rests=None):
     wolt = Wolt()
 
     # Get the matching streets
@@ -194,6 +195,53 @@ def get_restaurant_list(number_of_rests= None):
     return restaurants
 
 
+def get_diners_constraints(filename):
+    """
+    To optimize a meal order for a group of 3, the group must provide a formatted file
+    that contains provide 10 details about each diner's preferences.
+    This function takes a such formatted input file and returns 3 constraint list (one for each diner).
+    :param filename: the name of the file containing the diners constraints.
+    :return: 3 lists, one10-item list  for each diner that follows the following format:
+    0 - kosher (int - 1 for yes / 0 for no)
+    1 - vegetarian (int - 1 for yes / 0 for no)
+    2 - gluten free (int - 1 for yes / 0 for no)
+    3 - alcohol free (int - 1 for yes / 0 for no)
+    4 - prefer spicy (int - 1 for yes / 0 for no)
+    5 - max price (int - in ILS)
+    6 - min rating (int - range from 1 to 10)
+    7 - hunger level (int - 1 for high / 0 for low)
+    8 - desired cuisines (list(str) - list of strings out of a predefined list)
+    9 - weekday (str - lowercase string from sunday to saturday)
+    """
+    diner1, diner2, diner3 = [], [], []
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+        for line in lines[1:9]:
+            diner1.append(int(line.split(" ")[-1]))
+        diner1.append(list(lines[9].split("[")[-1][:-2].split(" ")))
+        diner1.append((lines[10].split(" ")[-1].strip()))
+        for line in lines[13:21]:
+            diner2.append(int(line.split(" ")[-1]))
+        diner2.append(list(lines[21].split("[")[-1][:-2].split(" ")))
+        diner2.append((lines[22].split(" ")[-1].strip()))
+        for line in lines[25:33]:
+            diner3.append(int(line.split(" ")[-1]))
+        diner3.append(list(lines[33].split("[")[-1][:-2].split(" ")))
+        diner3.append((lines[34].split(" ")[-1].strip()))
+
+    return diner1, diner2, diner3
+
+
 if __name__ == '__main__':
-    restaurants = get_restaurant_list()
-    print(len(restaurants))
+    # d1 = [0, 0, 0, 0, 0, 80, 7, 0, ['burger'], 'sunday']
+    # d2 = [0, 1, 0, 0, 0, 80, 5, 0, ['burger', 'hummus'], 'sunday']
+    # d3 = [0, 0, 0, 0, 1, 80, 8, 0, ['salad'], 'sunday']
+    # rest = 'MeatBar Burger | Dizengoff Square'
+    # meal1 = "צ׳יזבורגר עם צ׳יפס"
+    # meal2 = "🌱 VG2 (צ'יזבורגר טבעוני)"
+    # meal3 = "MB 2(Cheeseburger) + 🍺"
+
+    diner1, diner2, diner3 = get_diners_constraints(sys.argv[1])
+
+    # call here to any algorithm that you want to use
+    # TODO add here the algorithm you want to use

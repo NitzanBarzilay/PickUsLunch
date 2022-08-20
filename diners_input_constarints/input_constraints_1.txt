@@ -1,0 +1,35 @@
+diner1
+kosher - 0
+vegetarian - 0
+gluten_free - 0
+alcohol_free - 0
+spicy - 0
+max_price - 80
+min_rating - 7
+hungry - 0
+cuisines - ['burger']
+weekday - sunday
+
+diner2
+kosher - 0
+vegetarian - 1
+gluten_free - 0
+alcohol_free - 0
+spicy - 0
+max_price - 80
+min_rating - 5
+hungry - 0
+cuisines - ['burger', 'hummus']
+weekday - sunday
+
+diner3
+kosher - 0
+vegetarian - 0
+gluten_free - 0
+alcohol_free - 0
+spicy - 1
+max_price - 80
+min_rating - 6
+hungry - 0
+cuisines - ['salad']
+weekday - sunday

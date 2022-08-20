@@ -13,8 +13,8 @@ def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inp
     :return: a list of inputs for the loss function - [O, M, K, D, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3]
     """
 
-    rest_df = pd.read_csv("csv_wolt_restaurants_19-8-22.csv")
-    meals_df = pd.read_csv("csv_wolt_menus_20-8-22.csv")
+    rest_df = pd.read_csv("data/csv_wolt_restaurants_19-8-22.csv")
+    meals_df = pd.read_csv("data/csv_wolt_menus_20-8-22.csv")
     rest = rest_df[rest_df["name"] == rest_name].reset_index(drop=True)
     meal1_df = meals_df[(meals_df['rest_name'] == rest_name) & (meals_df["name"] == meal1)].reset_index(drop=True)
     meal2_df = meals_df[(meals_df['rest_name'] == rest_name) & (meals_df["name"] == meal2)].reset_index(drop=True)
@@ -70,7 +70,7 @@ def loss(O, M, K, D, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, 
     Loss function for the optimization problem.
     based on variables per restaurant (open, minimal order price, kosher, delivery time, rating, cuisines) and per diner (vegetarian, gluten free, alcohol_free, spicy, price).
     :param O: (open) - 1 if the restaurant open 0 otherwise
-    :param M: (minimal order price) - 1 if the meals combination surpasses the restaurant's minimal order price, 0 otherwise
+    :param M: (minimal order price) - 1 if the meal's combination surpasses the restaurant's minimal order price, 0 otherwise
     :param K: (kosher) - 1 if at least one diner eats kosher and the restaurant is kosher or none of the diners eat kosher, 0 otherwise
     :param D: (delivery time) - based on avg hunger level among the group. if hunger level is high - 1 if the meal is ready in less than 30 minutes, 0 otherwise. if hunger level is low - 1 if the meal is ready in less than 60 minutes, 0 otherwise.
     :param R: (rating) - 1 if the restaurant is above avg desired minimal rating among the group or does not have a rating, 0 otherwise
@@ -83,40 +83,4 @@ def loss(O, M, K, D, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, 
     :param PS1, PS2, PS3: (price soft) - difference between diner's maximal price and meals price, 0 if the meal's price is higher than the diner's desired maximal meal price
     :return: The loss value of the given inputs, according to the desired hard and soft constraints.
     """
-    pass
-
-
-"""
------------------------------------Input Format-----------------------------------
-To optimize a meal order for a group of 3, each person will provide the following details
-regarding their preferences.
-input for each diner should be a list of 10 items in the following order:
-0 - kosher (int - 1 for yes / 0 for no)
-1 - vegetarian (int - 1 for yes / 0 for no)
-2 - gluten free (int - 1 for yes / 0 for no)
-3 - alcohol free (int - 1 for yes / 0 for no)
-4 - prefer spicy (int - 1 for yes / 0 for no)
-5 - max price (int - in ILS)
-6 - min rating (int - range from 1 to 10)
-7 - hunger level (int - 1 for high / 0 for low)
-8 - desired cuisines (list(str) - list of strings out of a predefined list)
-9 - day (str - lowercase string from sunday to saturday)
-
-In addition to the constraint inputs, the loss function also take into consideration the following hard constraints:
-* The restaurant must be open
-* The sum of prices of the 3 chosen meals must surpass the restaurant's minimal order price
-
-"""
-
-# define input
-d1 = [0, 0, 0, 0, 0, 80, 7, 0, ['burger'], 'sunday']
-d2 = [0, 1, 0, 0, 0, 80, 5, 0, ['burger', 'hummus'], 'sunday']
-d3 = [0, 0, 0, 0, 1, 80, 8, 0, ['salad'], 'sunday']
-rest = 'MeatBar Burger | Dizengoff Square'
-meal1 = "צ׳יזבורגר עם צ׳יפס"
-meal2 = "🌱 VG2 (צ'יזבורגר טבעוני)"
-meal3 = "MB 2(Cheeseburger) + 🍺"
-
-# get params and run loss function
-params = user_inputs_to_loss_function_inputs(d1, d2, d3, rest, meal1, meal2, meal3)
-loss = loss(*params)
+    return 0
