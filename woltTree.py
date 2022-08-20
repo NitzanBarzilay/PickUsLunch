@@ -20,7 +20,7 @@ class Action:
     def __init__(self, history):
         self.history = history
 
-    def get_actions(self, state, users = 3):
+    def get_actions(self, state, users=3):
         actions = []
         index = self.history.restaurants.index(state.restaurant)
         for i in range(len(self.history.restaurants)):

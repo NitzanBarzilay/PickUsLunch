@@ -12,11 +12,11 @@ class WoltParser:
         if init_files:
             self.create_general_df()
             self.crate_restaurants_df()
-        self.file_name = "csv_wolt_restaurants_19-8-22.csv"
-        self.file_name_menus = "csv_wolt_menus_20-8-22.csv"
+        self.file_name = "data/csv_wolt_restaurants_19-8-22.csv"
+        self.file_name_menus = "data/csv_wolt_menus_20-8-22.csv"
 
     def crate_restaurants_df(self):
-        headers = ["rest_name" ,"name", "price", "alcohol_percentage", "vegetarian", "GF", "image", "days", "spicy"]
+        headers = ["rest_name", "name", "price", "alcohol_percentage", "vegetarian", "GF", "image", "days", "spicy"]
         with open(f"csv_wolt_menus_20-8-22.csv", "w", newline="", encoding='utf-8') as curr_file:
             dw = csv.DictWriter(curr_file, delimiter=",", fieldnames=headers)
             dw.writeheader()
