@@ -1,4 +1,4 @@
-from main2 import Restaurant, get_restaurant_list
+from main import Restaurant, get_restaurant_list
 from typing import List
 import csv
 import pickle

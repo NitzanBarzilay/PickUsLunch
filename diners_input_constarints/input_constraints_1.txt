@@ -1,35 +1,58 @@
-diner1
+DINER 1 PREFERENCES
 kosher - 0
 vegetarian - 0
 gluten_free - 0
 alcohol_free - 0
-spicy - 0
+spiciness - 0
 max_price - 80
 min_rating - 7
 hungry - 0
 cuisines - ['burger']
 weekday - sunday
 
-diner2
+DINER 2 PREFERENCES
 kosher - 0
 vegetarian - 1
 gluten_free - 0
 alcohol_free - 0
-spicy - 0
+spiciness - 0
 max_price - 80
 min_rating - 5
 hungry - 0
 cuisines - ['burger', 'hummus']
 weekday - sunday
 
-diner3
+DINER 3 PREFERENCES
 kosher - 0
 vegetarian - 0
 gluten_free - 0
 alcohol_free - 0
-spicy - 1
+spiciness - 1
 max_price - 80
 min_rating - 6
 hungry - 0
 cuisines - ['salad']
 weekday - sunday
+
+
+--------------------------- HOW TO USE ---------------------------
+for each diner, replace each parameter according to the following legend:
+kosher - 1 for must be kosher / 0 for doesn't matter
+vegetarian - 1 for must be vegetarian / 0 for doesn't matter
+gluten_free - 1 for must be gluten free / 0 for doesn't matter
+alcohol_free - 1 for must be alcohol free / 0 for doesn't matter
+spiciness - 2 for must be spicy / 1 for must NOT be spicy / 0 for doesn't matter
+max_price - in ILS, maximum price that the diner is willing to pay (including delivery)
+min_rating - range from 1 to 10, minimum restaurant rating that the diner is willing to order from (if doesn't matter - set to 1)
+hungry - 1 if very hungry (can't wait longer than 40 minutes) / 0 for nto very hungry
+cuisines - list of comma separated cuisines that the diner would prefer to order from (from cuisine list provided below)
+weekday - sunday / monday / tuesday / wednesday / thursday / friday / saturday
+
+* MAKE SURE **NOT** TO LEAVE A SPACE OR A DOT AT THE END OF THE CONSTRAINT ROW
+* DO NOT CHANGE ANYTHING BUT THE VALUE OF EACH PREFERENCE (including spacing within and between rows)
+
+------------------------- CUISINE LIST -------------------------
+for the cuisine preferences, choose as many as you like from the following list:
+'burger'
+'hummus'
+'salad'
