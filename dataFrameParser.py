@@ -2,12 +2,16 @@ from main2 import Restaurant, get_restaurant_list
 from typing import List
 import csv
 import pickle
+import pandas as pd
 
 
 class WoltParser:
-    def __init__(self, restaurants: List[Restaurant]):
+    def __init__(self, restaurants: List[Restaurant], init_file:bool =True):
+        self.df = None
         self.restaurants = restaurants
-        self.create_general_df()
+        if init_file:
+            self.create_general_df()
+        self.file_name = "csv_wolt_19-8-22.csv"
 
     def create_general_df(self):
         headers = [
@@ -31,11 +35,23 @@ class WoltParser:
                 line_dict["menu"] = " ".join(meal_lst)
                 dw.writerow(line_dict)
 
+    def read_df(self):
+        self.df = pd.read_csv(self.file_name, encoding="utf-8")
+
+
+
 
 if __name__ == '__main__':
-    restaurants = get_restaurant_list(10)
-    # with open('rests.pickle', 'wb') as handle:
-    #     pickle.dump(restaurants, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    # with open('rests.pickle', 'rb') as handle:
-    #     restaurants = pickle.load(handle)
-    file_creator = WoltParser(restaurants)
+    load = False
+    # restaurants = get_restaurant_list(10)
+
+    # if not load:
+    #     with open('rests.pickle', 'wb') as handle:
+    #
+    #         pickle.dump(restaurants, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # else:
+    #     with open('rests.pickle', 'rb') as handle:
+    #         restaurants = pickle.load(handle)
+    file_creator = WoltParser([], False)
+    file_creator.read_df()
+    print(file_creator.df)
