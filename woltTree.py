@@ -2,27 +2,9 @@ import random
 import dataFrameParser
 from simpleai.search import SearchProblem
 from typing import List, Tuple
-from enum import Enum
-
-df = dataFrameParser.WoltParser([], init_files=False)
 
 
-def get_rest_lst(data_frame):
-    rests = []
-    return rests
-
-
-restaurants = get_rest_lst(df)
-
-
-def get_menus_meals(data_frame):
-    our_meals = []
-    return meals
-
-
-meals = get_menus_meals(df)
-
-
+# ---------------------------------------------- Helper classes -----------------------------------------------------
 class State:
     def __init__(self, rest: str, meals: List):
         self.restaurant = rest
@@ -45,11 +27,10 @@ class Action:
 
 
 class History:
-    def __init__(self, restaurants_path, meals_path):
+    def __init__(self, restaurants, meals):
         self.history_states = set()
-        self.restaurants = None
-        self.meals = []
-        # TODO: read restaurants and meals
+        self.restaurants = restaurants
+        self.meals = meals
 
     def check_state(self, state_tuple: Tuple[str]):
         return state_tuple in self.history_states
@@ -64,9 +45,27 @@ class History:
         return True
 
 
+def get_rest_lst(data_frame):
+    rests = list(data_frame["name"])
+    return rests
+
+
+def get_menus_meals(data_frame, rests):
+    our_meals = []
+    for rest in rests:
+        our_meals.append(list(data_frame["name"][data_frame["rest_name"] == rest]))
+    return our_meals
+
+
+# ---------------------------------------------- Main class problem ---------------------------------------------------
+
 class WoltProblem(SearchProblem):
-    history = History("", "")
-    action_obj = Action(history)
+
+    def __init__(self, history, action_obj, init_state, constraints):
+        super().__init__(init_state)
+        self.history = history
+        self.action_obj = action_obj
+        self.constraints = constraints
 
     def result(self, state, action):
         if action[0] == Action.CHANGE_MEAL:
@@ -86,11 +85,12 @@ class WoltProblem(SearchProblem):
     def mutate(self, state):
         pass
 
-    def generate_random_state(self, users = 3):
+    def generate_random_state(self, users=3):
         rest_index = random.randint(0, len(self.history.restaurants))
         length_meals = len(self.history.meals[rest_index])
-        return State(self.history.restaurants[rest_index], [self.history.meals[rest_index][random.randint(0, length_meals)] for j in
-                                                   range(users)])
+        return State(self.history.restaurants[rest_index],
+                     [self.history.meals[rest_index][random.randint(0, length_meals)] for j in
+                      range(users)])
 
     def cost(self, state, action, state2):
         pass
@@ -111,3 +111,17 @@ class WoltProblem(SearchProblem):
             self.history.meals[rest_index] \
                 [random.randint(0, (self.history.meals[rest_index]))]
         return state
+
+
+# ---------------------------------------------- main  -----------------------------------------------------
+if __name__ == '__main__':
+    df = dataFrameParser.WoltParser([], init_files=False)
+    df.read_df()
+    data_rests = df.df
+    data_menu = df.df_menus
+    restaurants = get_rest_lst(data_rests)
+    meals = get_menus_meals(data_menu, restaurants)
+    history = History(restaurants, meals)
+    action_obj = Action(history)
+    print(restaurants)
+    print(meals)

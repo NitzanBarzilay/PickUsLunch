@@ -12,7 +12,7 @@ class WoltParser:
         if init_files:
             self.create_general_df()
             self.crate_restaurants_df()
-        self.file_name = "csv_wolt_19-8-22.csv"
+        self.file_name = "csv_wolt_restaurants_19-8-22.csv"
         self.file_name_menus = "csv_wolt_menus_20-8-22.csv"
 
     def crate_restaurants_df(self):
