@@ -8,7 +8,7 @@ from main import get_diners_constraints
 import sys
 
 
-# ---------------------------------------------- Helper classes -------------------------------------------------------
+# ----------------------------------------------  State --------------------------------------------------------------
 class State:
     def __init__(self, rest: str, meals: List):
         self.restaurant = rest
@@ -17,27 +17,36 @@ class State:
 
 class Action:
     CHANGE_REST = 0
-    CHANGE_MEAL = 1
+    ADD_MEAL = 1
+    ALL_RESTS = None
+    ALL_MEALS = None
 
-    def __init__(self, history):
-        self.history = history
+    def __init__(self, data):
+        self.data = data
+        self.ALL_RESTS = [(self.CHANGE_REST, i) for i in range(len(data.restaurants))]
+
+    def generate_change_meal(self):
+        self.ALL_MEALS = {}
+        for k, rest in enumerate(self.data.restaurants):
+            self.ALL_MEALS[rest] = [(self.ADD_MEAL, i) for i in range(len(self.data.meals[k]))]
 
     def get_actions(self, state, users=3):
-        actions = []
-        index = self.history.restaurants.index(state.restaurant)
-        for i in range(len(self.history.restaurants)):
-            actions.append((self.CHANGE_REST, i))
-        for j in range(len(self.history.meals[index])):
-            for k in range(users):
-                actions.append((self.CHANGE_MEAL, j, k))
-        return actions
+        if not state.restaurant and not state.meals:
+            return self.ALL_RESTS
+        if len(state.meals) < users:
+            return self.ALL_MEALS[state.restaurant]
+        if len(state.meals) == users:
+            return []
 
 
-class History:
+# ---------------------------------------------- History ---------------------------------------------------
+
+class Data:
     def __init__(self, restaurants, meals):
         self.history_states = set()
         self.restaurants = restaurants
         self.meals = meals
+        self.rest_dict = {rest:i for i, rest in enumerate(restaurants)}
 
     def check_state(self, state_tuple: Tuple[str]):
         return state_tuple in self.history_states
@@ -68,17 +77,17 @@ def get_menus_meals(data_frame, rests):
 
 class WoltProblem(SearchProblem):
 
-    def __init__(self, history, action_obj, init_state, constraints):
+    def __init__(self, data, action_obj, init_state, constraints):
         super().__init__(init_state)
-        self.history = history
+        self.data = data
         self.action_obj = action_obj
         self.constraints = constraints
 
     def result(self, state, action):
-        if action[0] == Action.CHANGE_MEAL:
-            return self.change_meal(state, action[1], action[2])
+        if action[0] == Action.ADD_MEAL:
+            return self.change_meal(state, action[1])
         if action[0] == Action.CHANGE_REST:
-            return self.change_rest_state(action[1], len(self.history.meals[action[1]]))
+            return self.change_rest_state(action[1])
 
     def is_goal(self, state):
         return self.value(state) != 0
@@ -96,13 +105,14 @@ class WoltProblem(SearchProblem):
         pass
 
     def generate_random_state(self, users=3):
-        rest_index = random.randint(0, len(self.history.restaurants))
-        length_meals = len(self.history.meals[rest_index])
-        return State(self.history.restaurants[rest_index],
-                     [self.history.meals[rest_index][random.randint(0, length_meals)] for j in
+        rest_index = random.randint(0, len(self.data.restaurants))
+        length_meals = len(self.data.meals[rest_index])
+        return State(self.data.restaurants[rest_index],
+                     [self.data.meals[rest_index][random.randint(0, length_meals)] for j in
                       range(users)])
 
     def cost(self, state, action, state2):
+
         return self.value(state2) - self.value(state)
 
     def actions(self, state):
@@ -111,17 +121,11 @@ class WoltProblem(SearchProblem):
     def heuristic(self, state):
         pass
 
-    def change_rest_state(self, i, length_meals, users=3) -> State:
-        return State(self.history.restaurants[i], [self.history.meals[i][random.randint(0, length_meals - 1)] for j in
-                                                   range(users)])
+    def change_rest_state(self, i) -> State:
+        return State(self.data.restaurants[i], [])
 
-    def change_meal(self, state, index_meal, index_diner) -> State:
-        rest_index = self.history.restaurants.index(state.restaurant)
-        meal = random.randint(0, len(self.history.meals[rest_index]) - 1)
-        while meal == index_meal:
-            meal = random.randint(0, len(self.history.meals[rest_index]) - 1)
-        state.meals[index_diner] = \
-            self.history.meals[rest_index][meal]
+    def change_meal(self, state, index_meal) -> State:
+        state.meals.append(self.data.meals[self.data.rest_dict[state.restaurant]][index_meal])
         return state
 
 
@@ -133,7 +137,7 @@ if __name__ == '__main__':
     data_menu = df.menus_df
     restaurants = get_rest_lst(data_rests)
     meals = get_menus_meals(data_menu, restaurants)
-    history = History(restaurants, meals)
+    history = Data(restaurants, meals)
     action_obj = Action(history)
     print(restaurants)
     print(meals)
