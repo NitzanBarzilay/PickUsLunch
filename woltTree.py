@@ -129,8 +129,8 @@ class WoltProblem(SearchProblem):
 if __name__ == '__main__':
     df = dataFrameParser.WoltParser([], init_files=False)
     df.get_dfs()
-    data_rests = df.df
-    data_menu = df.df_menus
+    data_rests = df.general_df
+    data_menu = df.menus_df
     restaurants = get_rest_lst(data_rests)
     meals = get_menus_meals(data_menu, restaurants)
     history = History(restaurants, meals)

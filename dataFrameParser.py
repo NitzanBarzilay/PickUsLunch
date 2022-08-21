@@ -1,5 +1,5 @@
 from main import Restaurant, get_restaurant_list
-from typing import List
+from typing import List, Tuple
 import csv
 import pickle
 import pandas as pd
@@ -8,8 +8,8 @@ import pandas as pd
 class WoltParser:
     def __init__(self, restaurants: List[Restaurant], general_file_name:str = "csv_wolt_restaurants_21-8-22.csv",
                  menu_file_name: str = "csv_wolt_menus_20-8-22.csv", init_files: bool = True):
-        self.df_menus = None
-        self.df = None
+        self.menus_df = None
+        self.general_df = None
         self.restaurants = restaurants
         if init_files:
             self.create_general_df()
@@ -60,11 +60,13 @@ class WoltParser:
             line_dict["menu"] = "---".join(meal_lst)
             dw.writerow(line_dict)
 
-    def get_dfs(self):
-        if not self.df:
-            self.df = pd.read_csv(self.file_name, encoding="utf-8")
-        if not self.df_menus:
-            self.df_menus = pd.read_csv(self.file_name_menus, encoding="utf-8")
+    def get_dfs(self)-> Tuple[pd.DataFrame, pd.DataFrame]:
+        if not self.general_df:
+            self.general_df = pd.read_csv(self.file_name, encoding="utf-8")
+        if not self.menus_df:
+            self.menus_df = pd.read_csv(self.file_name_menus, encoding="utf-8")
+
+        return self.general_df, self.menus_df
 
 
 if __name__ == '__main__':
@@ -79,5 +81,5 @@ if __name__ == '__main__':
     #     with open('rests.pickle', 'rb') as handle:
     #         restaurants = pickle.load(handle)
     file_creator = WoltParser(restaurants, True)
-    file_creator.read_df()
-    print(file_creator.df)
+    file_creator.get_dfs()
+    print(file_creator.general_df)
