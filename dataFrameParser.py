@@ -6,18 +6,19 @@ import pandas as pd
 
 
 class WoltParser:
-    def __init__(self, restaurants: List[Restaurant], init_files: bool = True):
+    def __init__(self, restaurants: List[Restaurant], general_file_name:str = "csv_wolt_restaurants_21-8-22.csv",
+                 menu_file_name: str = "csv_wolt_menus_20-8-22.csv", init_files: bool = True):
+        self.df_menus = None
         self.df = None
         self.restaurants = restaurants
         if init_files:
             self.create_general_df()
-            self.crate_restaurants_df()
-        self.file_name = "data/csv_wolt_restaurants_19-8-22.csv"
-        self.file_name_menus = "data/csv_wolt_menus_20-8-22.csv"
+        self.file_name = f"data/{general_file_name}"
+        self.file_name_menus = f"data/{menu_file_name}"
 
     def crate_restaurants_df(self):
         headers = ["rest_name", "name", "price", "alcohol_percentage", "vegetarian", "GF", "image", "days", "spicy"]
-        with open(f"csv_wolt_menus_20-8-22.csv", "w", newline="", encoding='utf-8') as curr_file:
+        with open(self.file_name_menus, "w", newline="", encoding='utf-8') as curr_file:
             dw = csv.DictWriter(curr_file, delimiter=",", fieldnames=headers)
             dw.writeheader()
             for rest in self.restaurants:
@@ -32,26 +33,38 @@ class WoltParser:
             "is active", "is valid", "kosher", "location lat long", "menu", "opening days", "prep estimation [minutes]"
             , "rating"
         ]
-        with open("csv_wolt_restaurants_19-8-22.csv", "w", newline="", encoding='utf-8') as curr_file:
+        with open(self.file_name, "w", newline="", encoding='utf-8') as curr_file:
             dw = csv.DictWriter(curr_file, delimiter=",", fieldnames=headers)
             dw.writeheader()
-            for rest in self.restaurants:
-                line_dict = {"name": rest.name, "address": rest.address, "city": rest.city,
-                             "delivery estimation [minutes]": rest.delivery_estimation,
-                             "delivery price": rest.delivery_price,
-                             "food categories": "---".join(rest.food_categories),
-                             "is active": rest.is_active, "is valid": rest.is_valid, "kosher": rest.kosher,
-                             "location lat long": tuple(rest.location), "opening days": " ".join(rest.opening_days),
-                             "prep estimation [minutes]": rest.prep_estimation, "rating": rest.rating, "menu": []}
-                meal_lst = []
-                for meal in rest.menu:
-                    meal_lst.append(str(meal))
-                line_dict["menu"] = "---".join(meal_lst)
-                dw.writerow(line_dict)
+    @staticmethod
+    def write_line(rest, headers=None):
+        if headers is None:
+            headers = [
+                "name", "address", "city", "delivery estimation [minutes]", "delivery price", "food categories",
+                "is active", "is valid", "kosher", "location lat long", "menu", "opening days",
+                "prep estimation [minutes]"
+                , "rating"
+            ]
+        with open("csv_wolt_restaurants_19-8-22.csv", "w", newline="", encoding='utf-8') as curr_file:
+            dw = csv.DictWriter(curr_file, delimiter=",", fieldnames=headers)
+            line_dict = {"name": rest.name, "address": rest.address, "city": rest.city,
+                         "delivery estimation [minutes]": rest.delivery_estimation,
+                         "delivery price": rest.delivery_price,
+                         "food categories": "---".join(rest.food_categories),
+                         "is active": rest.is_active, "is valid": rest.is_valid, "kosher": rest.kosher,
+                         "location lat long": tuple(rest.location), "opening days": " ".join(rest.opening_days),
+                         "prep estimation [minutes]": rest.prep_estimation, "rating": rest.rating, "menu": []}
+            meal_lst = []
+            for meal in rest.menu:
+                meal_lst.append(str(meal))
+            line_dict["menu"] = "---".join(meal_lst)
+            dw.writerow(line_dict)
 
-    def read_df(self):
-        self.df = pd.read_csv(self.file_name, encoding="utf-8")
-        self.df_menus = pd.read_csv(self.file_name_menus, encoding="utf-8")
+    def get_dfs(self):
+        if not self.df:
+            self.df = pd.read_csv(self.file_name, encoding="utf-8")
+        if not self.df_menus:
+            self.df_menus = pd.read_csv(self.file_name_menus, encoding="utf-8")
 
 
 if __name__ == '__main__':

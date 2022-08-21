@@ -6,6 +6,7 @@ from collections import namedtuple
 from time import sleep
 import tqdm
 import sys
+from dataFrameParser import WoltParser
 
 
 class Wolt:
@@ -174,7 +175,7 @@ class Restaurant:
                                       is_veg, gluten_free, is_spicy, item.image, item.days))
 
 
-def get_restaurant_list(number_of_rests=None):
+def get_restaurant_list(number_of_rests=None, file_parser : WoltParser = None, save_to_file : bool = False):
     wolt = Wolt()
 
     # Get the matching streets
@@ -190,6 +191,8 @@ def get_restaurant_list(number_of_rests=None):
         potential_restaurants = potential_restaurants[:number_of_rests]
     for restaurant in tqdm.tqdm(potential_restaurants):
         rest_obj = Restaurant(restaurant['title'], wolt, lat_lon)
+        if file_parser:
+            file_parser.write_line(rest_obj)
         sleep(random.uniform(0, 0.1))
         if rest_obj.is_valid and rest_obj.is_active:
             restaurants.append(rest_obj)

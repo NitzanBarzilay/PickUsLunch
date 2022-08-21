@@ -4,6 +4,8 @@ from simpleai.search import SearchProblem
 from typing import List, Tuple
 import LossFunc
 from simpleai.search import breadth_first
+from main import get_diners_constraints
+import sys
 
 
 # ---------------------------------------------- Helper classes -------------------------------------------------------
@@ -79,8 +81,7 @@ class WoltProblem(SearchProblem):
             return self.change_rest_state(action[1], len(self.history.meals[action[1]]))
 
     def is_goal(self, state):
-        # TODO: check the loss function if all constraints are satisfied.
-        pass
+        return self.value(state) != 0
 
     def value(self, state):
         return LossFunc.loss(*LossFunc.user_inputs_to_loss_function_inputs(self.constraints[0], self.constraints[1],
@@ -102,7 +103,7 @@ class WoltProblem(SearchProblem):
                       range(users)])
 
     def cost(self, state, action, state2):
-        return self.value(state) - self.value(state2)
+        return self.value(state2) - self.value(state)
 
     def actions(self, state):
         return self.action_obj.get_actions(state)
@@ -127,7 +128,7 @@ class WoltProblem(SearchProblem):
 # ---------------------------------------------- main  ---------------------------------------------------------------
 if __name__ == '__main__':
     df = dataFrameParser.WoltParser([], init_files=False)
-    df.read_df()
+    df.get_dfs()
     data_rests = df.df
     data_menu = df.df_menus
     restaurants = get_rest_lst(data_rests)
@@ -136,8 +137,9 @@ if __name__ == '__main__':
     action_obj = Action(history)
     print(restaurants)
     print(meals)
-    constraints = [LossFunc.d1, LossFunc.d2, LossFunc.d3]
-    init_state = State(rest="Doron's Jachnun | Tel Aviv", meals=['אננס טבעי ללא סוכר', 'גוג׳י ברי', 'תמר מג׳הול ענק'])
+    constraints = [*get_diners_constraints(sys.argv[1])]
+    init_state = State(rest="Doron's Jachnun | Tel Aviv",
+                       meals=['ג׳חנון תימני עצבני', 'ג׳חנון תימני עצבני', 'ג׳חנון תימני עצבני'])
     problem = WoltProblem(history, action_obj, init_state, constraints)
     result = breadth_first(problem)
     print(result)
