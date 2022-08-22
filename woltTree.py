@@ -44,7 +44,7 @@ class Action:
             return []
 
 
-# ---------------------------------------------- History ---------------------------------------------------
+# ---------------------------------------------- Data ----------------------------------------------------------------
 
 
 class Data:
@@ -183,7 +183,7 @@ class WoltProblem(SearchProblem):
         if action[0] == Action.ADD_MEAL:
             return self.meal_cost(state.meals[-1])
         if action[0] == Action.CHANGE_REST:
-            return self.resturant_cost(state.restaurant)
+            return self.restaurant_cost(state.restaurant)
 
     def actions(self, state):
         return self.action_obj.get_actions(state)
@@ -208,7 +208,7 @@ class WoltProblem(SearchProblem):
         # TODO : check meal_df
         return 1
 
-    def resturant_cost(self, restaurant_name):
+    def restaurant_cost(self, restaurant_name):
         rest = self.data_rests[self.data_rests["name"] == restaurant_name].reset_index(
             drop=True
         )
