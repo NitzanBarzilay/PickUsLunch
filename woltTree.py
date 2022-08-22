@@ -84,7 +84,7 @@ def get_menus_meals(data_frame, rests):
 
 class WoltProblem(SearchProblem):
     def __init__(
-        self, data, action_obj, init_state, constraints, data_rests, data_menu
+            self, data, action_obj, init_state, constraints, data_rests, data_menu
     ):
         super().__init__(init_state)
         self.data = data
@@ -148,21 +148,18 @@ class WoltProblem(SearchProblem):
     def is_goal(self, state):
         if len(state.meals) < 3:
             return False
-        # TODO : Check if all the hard constrain are satisfied
-        return True
+        return self.check_constraints(state)
+
+    def check_constraints(self, state):
+        args \
+            = LossFunc.user_inputs_to_loss_function_inputs(self.constraints[0],
+                                                           self.constraints[1], self.constraints[2],
+                                                           state.restaurant, state.meals[0], state.meals[1],
+                                                           state.meals[2])
+        return LossFunc.loss(*args) != 0
 
     def value(self, state):
-        return LossFunc.loss(
-            *LossFunc.user_inputs_to_loss_function_inputs(
-                self.constraints[0],
-                self.constraints[1],
-                self.constraints[2],
-                state.restaurant,
-                state.meals[0],
-                state.meals[1],
-                state.meals[2],
-            )
-        )
+        pass
 
     def crossover(self, state1, state2):
         pass
@@ -171,14 +168,15 @@ class WoltProblem(SearchProblem):
         pass
 
     def generate_random_state(self, users=3):
-        rest_index = random.randint(0, len(self.data.restaurants))
+        rest_index = random.randint(0, len(self.data.restaurants) - 1)
         length_meals = len(self.data.meals[rest_index])
+        num_of_meals = random.randint(0, users)
         return State(
             self.data.restaurants[rest_index],
             [
                 self.data.meals[rest_index][random.randint(0, length_meals)]
-                for j in range(users)
-            ],
+                for j in range(num_of_meals)
+            ]
         )
 
     def cost(self, state, action, state2):
@@ -206,7 +204,7 @@ class WoltProblem(SearchProblem):
         meal_df = self.data_menu[
             (self.data_menu["rest_name"] == restaurant_name)
             & (self.data_menu["name"] == meal_name)
-        ].reset_index(drop=True)
+            ].reset_index(drop=True)
         # TODO : check meal_df
         return 1
 
