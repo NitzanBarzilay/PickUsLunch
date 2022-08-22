@@ -1,26 +1,26 @@
 DINER 1 PREFERENCES
 kosher - 0
-vegetarian - 0
-gluten_free - 0
-alcohol_free - 0
-spiciness - 0
-max_price - 80
-min_rating - 7
-hungry - 0
-cuisines - ['burger']
-weekday - sunday
-
-DINER 2 PREFERENCES
-kosher - 0
 vegetarian - 1
 gluten_free - 0
 alcohol_free - 0
-spiciness - 0
-max_price - 80
-min_rating - 5
-hungry - 0
-cuisines - ['burger', 'hummus']
-weekday - sunday
+spiciness - 2
+max_price - 75
+min_rating - 7
+hungry - 1
+cuisines - ['fresh','mediterranean','healthy','salad']
+weekday - thursday
+
+DINER 2 PREFERENCES
+kosher - 0
+vegetarian - 0
+gluten_free -1
+alcohol_free - 1
+spiciness - 1
+max_price - 100
+min_rating - 8
+hungry - 1
+cuisines - ['asian', 'japanese','thai']
+weekday - thursday
 
 DINER 3 PREFERENCES
 kosher - 0
@@ -28,11 +28,11 @@ vegetarian - 0
 gluten_free - 0
 alcohol_free - 0
 spiciness - 1
-max_price - 80
-min_rating - 6
+max_price - 60
+min_rating - 1
 hungry - 0
-cuisines - ['salad']
-weekday - sunday
+cuisines - ['tortilla','mexican','nacho']
+weekday - thursday
 
 
 --------------------------- HOW TO USE ---------------------------

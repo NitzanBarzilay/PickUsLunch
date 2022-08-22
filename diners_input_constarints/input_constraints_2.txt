@@ -1,26 +1,26 @@
 DINER 1 PREFERENCES
-kosher - 0
+kosher - 1
 vegetarian - 0
 gluten_free - 0
 alcohol_free - 0
 spiciness - 0
-max_price - 80
+max_price - 90
 min_rating - 7
 hungry - 0
-cuisines - ['burger']
-weekday - sunday
+cuisines - ['burger', 'meat']
+weekday - monday
 
 DINER 2 PREFERENCES
-kosher - 0
+kosher - 1
 vegetarian - 1
 gluten_free - 0
-alcohol_free - 0
+alcohol_free - 1
 spiciness - 0
 max_price - 80
-min_rating - 5
-hungry - 0
-cuisines - ['burger', 'hummus']
-weekday - sunday
+min_rating - 9
+hungry - 1
+cuisines - ['bagel', 'thai']
+weekday - monday
 
 DINER 3 PREFERENCES
 kosher - 0
@@ -28,11 +28,11 @@ vegetarian - 0
 gluten_free - 0
 alcohol_free - 0
 spiciness - 1
-max_price - 80
-min_rating - 6
-hungry - 0
-cuisines - ['salad']
-weekday - sunday
+max_price - 100
+min_rating - 7
+hungry - 1
+cuisines - ['salad','thai']
+weekday - monday
 
 
 --------------------------- HOW TO USE ---------------------------

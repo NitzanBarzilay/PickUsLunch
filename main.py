@@ -142,7 +142,7 @@ class Restaurant:
         self.menu = []
         self.__fill_restaurant_menu(wolt, restaurant)
         self.food_categories = restaurant['food_tags']
-        self.kosher = "kosher" in self.food_categories
+        self.kosher = ("kosher" in self.food_categories) or ('Kosher L’mehadrin' in self.food_categories)
 
         # delivery
         self.delivery_estimation = restaurant['estimates']['delivery']['mean']
@@ -192,7 +192,7 @@ def get_restaurant_list(number_of_rests=None, file_parser : WoltParser = None, s
     for restaurant in tqdm.tqdm(potential_restaurants):
         rest_obj = Restaurant(restaurant['title'], wolt, lat_lon)
         sleep(random.uniform(0, 0.1))
-        if rest_obj.is_valid and rest_obj.is_active:
+        if rest_obj.is_valid:
             if file_parser:
                 try:
                     file_parser.write_line(rest_obj)
