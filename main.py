@@ -191,10 +191,14 @@ def get_restaurant_list(number_of_rests=None, file_parser : WoltParser = None, s
         potential_restaurants = potential_restaurants[:number_of_rests]
     for restaurant in tqdm.tqdm(potential_restaurants):
         rest_obj = Restaurant(restaurant['title'], wolt, lat_lon)
-        if file_parser:
-            file_parser.write_line(rest_obj)
         sleep(random.uniform(0, 0.1))
         if rest_obj.is_valid and rest_obj.is_active:
+            if file_parser:
+                try:
+                    file_parser.write_line(rest_obj)
+                    file_parser.write_line_menu(rest_obj)
+                except Exception as e:
+                    print(f"got {e} while loading {rest_obj.name} restaurant")
             restaurants.append(rest_obj)
     return restaurants
 
@@ -238,7 +242,10 @@ def get_diners_constraints(filename):
 
 
 if __name__ == '__main__':
-    diner1, diner2, diner3 = get_diners_constraints(sys.argv[1])
+    # diner1, diner2, diner3 = get_diners_constraints(sys.argv[1])
 
     # call here to any algorithm that you want to use
     # TODO add here the algorithm you want to use
+    df_manager = WoltParser([])
+    restaurants = get_restaurant_list(file_parser=df_manager)
+    df_manager.crate_restaurants_df()
