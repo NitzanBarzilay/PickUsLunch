@@ -4,8 +4,8 @@ import pandas as pd
 
 
 class WoltParser:
-    def __init__(self, restaurants: List, general_file_name: str = "csv_wolt_restaurants_22-8-22.csv",
-                 menu_file_name: str = "csv_wolt_menus_22-8-22.csv", init_files: bool = True):
+    def __init__(self, restaurants: List, general_file_name: str = "csv_wolt_restaurants_21-8-22.csv",
+                 menu_file_name: str = "csv_wolt_menus_21-8-22.csv", init_files: bool = True):
         self.menus_df = None
         self.general_df = None
         self.restaurants = restaurants

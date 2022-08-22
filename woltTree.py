@@ -3,7 +3,7 @@ import sys
 from typing import List, Tuple
 
 import numpy as np
-from simpleai.search import SearchProblem, breadth_first
+from simpleai.search import SearchProblem, breadth_first, depth_first, uniform_cost
 
 import dataFrameParser
 import LossFunc
@@ -38,7 +38,7 @@ class Action:
     def get_actions(self, state, users=3):
         if not state.restaurant and not state.meals:
             return self.ALL_RESTS
-        if len(state.meals) < users:
+        elif len(state.meals) < users:
             return self.ALL_MEALS[state.restaurant]
         else:
             return []
@@ -146,9 +146,12 @@ class WoltProblem(SearchProblem):
             return self.change_rest_state(action[1])
 
     def is_goal(self, state):
+        print(f"is goal func state : rest = {state.restaurant}, meals = {state.meals}")
         if len(state.meals) < 3:
             return False
-        return self.check_constraints(state)
+        if self.check_constraints(state):
+            return True
+        return False
 
     def check_constraints(self, state):
         args \
@@ -181,9 +184,9 @@ class WoltProblem(SearchProblem):
 
     def cost(self, state, action, state2):
         if action[0] == Action.ADD_MEAL:
-            return self.meal_cost(state.meals[-1])
+            return self.meal_cost(state2.meals[-1], state2.restaurant, len(state2.meals) - 1)
         if action[0] == Action.CHANGE_REST:
-            return self.restaurant_cost(state.restaurant)
+            return self.restaurant_cost(state2.restaurant)
 
     def actions(self, state):
         return self.action_obj.get_actions(state)
@@ -195,32 +198,74 @@ class WoltProblem(SearchProblem):
         return State(self.data.restaurants[i], [])
 
     def change_meal(self, state, index_meal) -> State:
-        state.meals.append(
-            self.data.meals[self.data.rest_dict[state.restaurant]][index_meal]
-        )
-        return state
+        if state.meals:
+            meals = [*state.meals[:], self.data.meals[self.data.rest_dict[state.restaurant]][index_meal]]
+        else:
+            meals = [self.data.meals[self.data.rest_dict[state.restaurant]][index_meal]]
+        new_state = State(state.restaurant, meals)
+        return new_state
 
-    def meal_cost(self, meal_name, restaurant_name):
+    def meal_cost(self, meal_name, restaurant_name, meal_index):
         meal_df = self.data_menu[
             (self.data_menu["rest_name"] == restaurant_name)
             & (self.data_menu["name"] == meal_name)
             ].reset_index(drop=True)
-        # TODO : check meal_df
-        return 1
+        return self.check_veg(meal_index, meal_df) + self.check_gf(meal_index, meal_df) + \
+            self.check_price(meal_index, meal_df) + self.check_spicy(meal_index, meal_df)
 
     def restaurant_cost(self, restaurant_name):
         rest = self.data_rests[self.data_rests["name"] == restaurant_name].reset_index(
             drop=True
         )
-        # TODO : check rest
-        return 1
+        return self.food_category_cost(rest) * 10
+
+    def food_category_cost(self, rest_df):
+
+        rest_cuisines = rest_df["food categories"]
+        diner1_cui = 0 if len([meal for meal in self.cuisines1 if meal in rest_cuisines]) > 0 else 1
+        diner2_cui = 0 if len([meal for meal in self.cuisines2 if meal in rest_cuisines]) > 0 else 1
+        diner3_cui = 0 if len([meal for meal in self.cuisines3 if meal in rest_cuisines]) > 0 else 1
+        gain = diner1_cui + diner2_cui + diner3_cui
+        return gain
+
+    def check_veg(self, meal_index, meal_df):
+        if meal_index == 0:
+            return 1 if bool(self.vegetarian1) == meal_df["vegetarian"].values[0] else 0
+        elif meal_index == 1:
+            return 1 if bool(self.vegetarian2) == meal_df["vegetarian"].values[0] else 0
+        elif meal_index == 2:
+            return 1 if bool(self.vegetarian3) == meal_df["vegetarian"].values[0] else 0
+
+    def check_gf(self, meal_index, meal_df):
+        if meal_index == 0:
+            return 1 if bool(self.gluten_free1) == meal_df["GF"].values[0] else 0
+        elif meal_index == 1:
+            return 1 if bool(self.gluten_free2) == meal_df["GF"].values[0] else 0
+        elif meal_index == 2:
+            return 1 if bool(self.gluten_free3) == meal_df["GF"].values[0] else 0
+
+    def check_spicy(self, meal_index, meal_df):
+        if meal_index == 0:
+            return 1 if bool(self.spicy1) == meal_df["spicy"].values[0] else 0
+        elif meal_index == 1:
+            return 1 if bool(self.spicy2) == meal_df["spicy"].values[0] else 0
+        elif meal_index == 2:
+            return 1 if bool(self.spicy3) == meal_df["spicy"].values[0] else 0
+
+    def check_price(self, meal_index, meal_df):
+        if meal_index == 0:
+            return 1 if self.max_price1 < meal_df["price"].values[0] else 0
+        elif meal_index == 1:
+            return 1 if self.max_price2 < meal_df["price"].values[0] else 0
+        elif meal_index == 2:
+            return 1 if self.max_price3 < meal_df["price"].values[0] else 0
 
 
 # ---------------------------------------------- main  ---------------------------------------------------------------
 if __name__ == "__main__":
     df = dataFrameParser.WoltParser([], init_files=False)
     df.get_dfs()
-    data_rests = df.general_df
+    data_rests = df.general_df[:2]
     data_menu = df.menus_df
     restaurants = get_rest_lst(data_rests)
     meals = get_menus_meals(data_menu, restaurants)
@@ -233,5 +278,6 @@ if __name__ == "__main__":
     problem = WoltProblem(
         history, action_obj, init_state, constraints, data_rests, data_menu
     )
-    result = breadth_first(problem)
-    print(result)
+    result = depth_first(problem, True)
+    print(f'-------------------------------------------\n{result.state.restaurant}, \n{result.state.meals[0]},\n{ result.state.meals[1]}, '
+          f'\n{result.state.meals[2]}, \n{constraints}')
