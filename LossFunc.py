@@ -25,7 +25,7 @@ def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inp
     diners_kosher = False if (kosher1 == 0 and kosher2 == 0 and kosher3 == 0) else True
     diners_avg_rating = np.mean((rating1, rating2, rating3))
     hungry_diners = True if np.sum((hungry1, hungry2, hungry3)) >= 2 else False
-    rest_cuisines = rest.at[0, 'food categories'].split('---')
+    rest_cuisines = rest['food categories'].values[0].split('---')
     diner1_cui = 1 if len([meal for meal in cuisines1 if meal in rest_cuisines]) > 0 else 0
     diner2_cui = 1 if len([meal for meal in cuisines2 if meal in rest_cuisines]) > 0 else 0
     diner3_cui = 1 if len([meal for meal in cuisines3 if meal in rest_cuisines]) > 0 else 0
@@ -103,7 +103,7 @@ def loss(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
 
     hard_constraints = O * M * K * V1 * V2 * V3 * G1 * G2 * G3 * A1 * A2 * A3
     if hard_constraints == 0: # if at least 1 hard constraint is not met, return a loss value of 0
-        return PH1 + PH2 + PH3
+        return 0
 
     """
     soft constraints:
