@@ -5,7 +5,7 @@ from timeit import default_timer as timer
 from typing import List, Tuple
 
 import numpy as np
-from simpleai.search import (SearchProblem, breadth_first, depth_first,
+from simpleai.search import (SearchProblem, breadth_first, depth_first, astar,
                              uniform_cost)
 
 import dataFrameParser
@@ -154,7 +154,9 @@ class WoltProblem(SearchProblem):
             self.cuisines3,
             self.weekday,
         ) = diner3_inputs
-
+        self.cuisines1 = self.cuisines1[0].split(',')
+        self.cuisines2 = self.cuisines2[0].split(',')
+        self.cuisines3 = self.cuisines3[0].split(',')
         self.diners_kosher = (
             False
             if (self.kosher1 == 0 and self.kosher2 == 0 and self.kosher3 == 0)
@@ -226,9 +228,12 @@ class WoltProblem(SearchProblem):
 
     def cost(self, state, action, state2):
         if action[0] == Action.ADD_MEAL:
-            return self.meal_cost(
-                state2.meals[-1], state2.restaurant, len(state2.meals) - 1
-            )
+            cost = self.restaurant_cost(state2.restaurant)
+            for i in range( len(state2.meals)):
+                self.meal_cost(
+                    state2.meals[-1], state2.restaurant, i
+                )
+            return cost
         if action[0] == Action.CHANGE_REST:
             return self.restaurant_cost(state2.restaurant)
 
@@ -241,7 +246,7 @@ class WoltProblem(SearchProblem):
     def heuristic(self, state):
         # if state.restaurant==None:
         #     return 0
-        pass
+        return 0
 
     def change_rest_state(self, i) -> State:
         return State(self.data.restaurants[i], [])
@@ -267,6 +272,7 @@ class WoltProblem(SearchProblem):
             + 10 * self.check_gf(meal_index, meal_df)
             + self.check_price(meal_index, meal_df)
             + self.check_spicy(meal_index, meal_df)
+            + self.check_alcohol(meal_index, meal_df)
         )
 
     def restaurant_cost(self, restaurant_name):
@@ -279,7 +285,7 @@ class WoltProblem(SearchProblem):
         if un_satisfied > 2:
             cost += MAX_COST_REST
         else:
-            cost += un_satisfied
+            cost += 50 * un_satisfied
         cost += self.rating_cost(rest)
         cost += self.hungry_loss(rest)
         cost += self.kosher(rest)
@@ -365,6 +371,26 @@ class WoltProblem(SearchProblem):
                 else 0
             )
 
+    def check_alcohol(self, meal_index, meal_df):
+        if meal_index == 0:
+            return (
+                MAX_COST_MEAL / 2
+                if bool(self.alcohol_free1) and meal_df["alcohol_percentage"].values[0] != 0
+                else 0
+            )
+        elif meal_index == 1:
+            return (
+                MAX_COST_MEAL / 2
+                if bool(self.alcohol_free2) and meal_df["alcohol_percentage"].values[0] != 0
+                else 0
+            )
+        elif meal_index == 2:
+            return (
+                MAX_COST_MEAL / 2
+                if bool(self.alcohol_free3) and meal_df["alcohol_percentage"].values[0] != 0
+                else 0
+            )
+
     def check_price(self, meal_index, meal_df):
         if meal_index == 0:
             return (
@@ -420,7 +446,7 @@ class WoltProblem(SearchProblem):
 if __name__ == "__main__":
     df = dataFrameParser.WoltParser([], init_files=False)
     df.get_dfs()
-    data_rests = df.general_df
+    data_rests = df.general_df[:10]
     data_menu = df.menus_df
     restaurants = get_rest_lst(data_rests)
     meals = get_menus_meals(data_menu, restaurants)
@@ -463,13 +489,13 @@ if __name__ == "__main__":
         end = timer()
         print(
             f"----------------{end - start} sec, ---------- Loss = {LossFunc.loss(*args)}---- cost = {result.cost}--\n "
-            f'{result.state.restaurant} - {data_rests[data_rests["name"]==result.state.restaurant].values}\n'
-            f"-------------------------------------------\n"
-            f'{result.state.meals[0]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant)&(data_menu["name"] == result.state.meals[0])].values}\n'
-            f"-------------------------------------------\n"
-            f'{result.state.meals[1]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant)&(data_menu["name"] == result.state.meals[1])].values}\n'
-            f"-------------------------------------------\n"
-            f'{result.state.meals[2]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant)&(data_menu["name"] == result.state.meals[2])].values}\n'
-            f"-------------------------------------------\n"
-            f"{constraints}"
+            # f'{result.state.restaurant} - {data_rests[data_rests["name"]==result.state.restaurant].values}\n'
+            # f"-------------------------------------------\n"
+            # f'{result.state.meals[0]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant)&(data_menu["name"] == result.state.meals[0])].values}\n'
+            # f"-------------------------------------------\n"
+            # f'{result.state.meals[1]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant)&(data_menu["name"] == result.state.meals[1])].values}\n'
+            # f"-------------------------------------------\n"
+            # f'{result.state.meals[2]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant)&(data_menu["name"] == result.state.meals[2])].values}\n'
+            # f"-------------------------------------------\n"
+            # f"{constraints}"
         )
