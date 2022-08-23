@@ -13,7 +13,7 @@ weekday - thursday
 DINER 2 PREFERENCES
 kosher - 0
 vegetarian - 0
-gluten_free -1
+gluten_free - 1
 alcohol_free - 1
 spiciness - 1
 max_price - 100
