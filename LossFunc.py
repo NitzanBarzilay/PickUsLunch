@@ -6,23 +6,17 @@ MUST = 1
 MUST_NOT = 2
 
 
-def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inputs, rest_name, meal1, meal2, meal3):
+def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inputs, rest, meal1_df, meal2_df, meal3_df):
     """
     Converts the user inputs to the loss function inputs.
-    :params diner1_inputs, diner2_inputs, diner3_inputs: user input in format of: [0 - kosher, 1 - vegetarian, 2 - gluten free, 3 - alcohol free, 4 - prefer spicy, 5 - max price, 6 - min rating, 7 - hunger level, 8 - desired cuisines, 9 - day]
-    :param rest_name: name of the restaurant
-    :param meal1: name of 1st meal
-    :param meal2: name of 2nd meal
-    :param meal3: name of 3rd meal
+    :params diner1_inputs, diner2_inputs, diner3_inputs: user input in format of: [0 - kosher, 1 - vegetarian,
+    2 - gluten free, 3 - alcohol free, 4 - prefer spicy, 5 - max price, 6 - min rating, 7 - hunger level, 8 - desired cuisines, 9 - day]
+    :param rest: df with 1 row containing the restaurant
+    :param meal1_df: df with 1 row containing 1st meal
+    :param meal2_df: df with 1 row containing 2nd meal
+    :param meal3_df: df with 1 row containing 3rd meal
     :return: a list of inputs for the loss function - [O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3]
     """
-
-    rest_df = pd.read_csv("data/csv_wolt_restaurants_19-8-22.csv")
-    meals_df = pd.read_csv("data/csv_wolt_menus_20-8-22.csv")
-    rest = rest_df[rest_df["name"] == rest_name].reset_index(drop=True)
-    meal1_df = meals_df[(meals_df['rest_name'] == rest_name) & (meals_df["name"] == meal1)].reset_index(drop=True)
-    meal2_df = meals_df[(meals_df['rest_name'] == rest_name) & (meals_df["name"] == meal2)].reset_index(drop=True)
-    meal3_df = meals_df[(meals_df['rest_name'] == rest_name) & (meals_df["name"] == meal3)].reset_index(drop=True)
     kosher1, vegetarian1, gluten_free1, alcohol_free1, spicy1, max_price1, rating1, hungry1, cuisines1, weekday = diner1_inputs
     kosher2, vegetarian2, gluten_free2, alcohol_free2, spicy2, max_price2, rating2, hungry2, cuisines2, weekday = diner2_inputs
     kosher3, vegetarian3, gluten_free3, alcohol_free3, spicy3, max_price3, rating3, hungry3, cuisines3, weekday = diner3_inputs
