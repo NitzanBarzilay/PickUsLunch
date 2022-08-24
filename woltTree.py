@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 import numpy as np
 from simpleai.search import (SearchProblem, breadth_first, depth_first,
-                             uniform_cost)
+                             uniform_cost, astar)
 
 import dataFrameParser
 import LossFunc
@@ -14,6 +14,8 @@ from main import get_diners_constraints
 
 MAX_COST_REST = 1000
 MAX_COST_MEAL = 100
+
+
 # ----------------------------------------------  State --------------------------------------------------------------
 class State:
     def __init__(self, rest: str, meals: List):
@@ -110,7 +112,7 @@ def get_menus_meals(data_frame, rests):
 
 class WoltProblem(SearchProblem):
     def __init__(
-        self, data, action_obj, init_state, constraints, data_rests, data_menu
+            self, data, action_obj, init_state, constraints, data_rests, data_menu
     ):
         super().__init__(init_state)
         self.data = data
@@ -180,26 +182,17 @@ class WoltProblem(SearchProblem):
         return True
 
     def check_constraints(self, state):
-        rest = self.data_rests[self.data_rests["name"] == state.restaurant].reset_index(
-            drop=True
-        )
-        meal_df1 = self.data_menu[
-            (self.data_menu["rest_name"] == state.restaurant)
-            & (self.data_menu["name"] == state.meals[0])
-            ].reset_index(drop=True)
-        meal_df2 = self.data_menu[
-            (self.data_menu["rest_name"] == state.restaurant)
-            & (self.data_menu["name"] == state.meals[1])
-            ].reset_index(drop=True)
-        meal_df3 = self.data_menu[
-            (self.data_menu["rest_name"] == state.restaurant)
-            & (self.data_menu["name"] == state.meals[2])
-            ].reset_index(drop=True)
         args = LossFunc.user_inputs_to_loss_function_inputs(
             self.constraints[0],
             self.constraints[1],
             self.constraints[2],
-            rest, meal_df1, meal_df2, meal_df3
+            self.data_rests[self.data_rests["name"] == state.restaurant],
+            self.data_menu[self.data_menu["name"] == state.meals[0]],
+            # and self.data_menu["rest_name"] == state.restaurant],
+            self.data_menu[self.data_menu["name"] == state.meals[1]],
+            # and self.data_menu["rest_name"] == state.restaurant],
+            self.data_menu[self.data_menu["name"] == state.meals[2]],
+            # and self.data_menu["rest_name"] == state.restaurant],
         )
         return LossFunc.loss(*args) == 0
 
@@ -239,8 +232,75 @@ class WoltProblem(SearchProblem):
         return action
 
     def heuristic(self, state):
-        # if state.restaurant==None:
-        #     return 0
+        h_cost = 0
+        if state.restaurant is None:
+            return h_cost
+        h_cost += self.rest_heuristic(state)
+        # for index, meal in state.meals:
+        #     h_cost += self.meal_heuristic(meal, index)
+        return h_cost
+
+    def rest_heuristic(self, state):
+        rest_cost = 0
+        all_rest_meals_df = self.data_menu[self.data_menu["rest_name"] == state.restaurant]
+        index_diner = len(state.meals)
+
+        gluten_free = len(all_rest_meals_df[all_rest_meals_df["GF"] == True])
+        not_gluten_meals = len(all_rest_meals_df) - gluten_free
+        vegi = len(all_rest_meals_df[all_rest_meals_df["vegetarian"] == True])
+        not_vegi = len(all_rest_meals_df) - vegi
+        spicy = len(all_rest_meals_df[all_rest_meals_df["spicy"] == True])
+        not_spicy = len(all_rest_meals_df) - spicy
+        alcohol = len(all_rest_meals_df[all_rest_meals_df["alcohol_percentage"] > 0])
+        no_alcohol = len(all_rest_meals_df) - alcohol
+        categories = self.data_rests[self.data_rests["name"] == state.restaurant]["food categories"].values[0]
+
+        if index_diner == 0:
+            rest_cost += (not_gluten_meals if bool(self.gluten_free1) else gluten_free) / 10
+            rest_cost += (not_vegi if bool(self.vegetarian1) else vegi) / 10
+            rest_cost += (alcohol if bool(self.alcohol_free1) else no_alcohol) / 100
+            rest_cost += (not_spicy if bool(self.spicy1) else spicy) / 20
+            rest_cost += len(all_rest_meals_df[all_rest_meals_df["price"] > self.max_price1]) / 20
+            cat_count = 0
+            for cat in self.cuisines1:
+                if cat not in categories:
+                    cat_count += 1
+            if cat_count == 1:
+                rest_cost += 10
+            else:
+                rest_cost -= 10
+        elif index_diner == 1:
+            rest_cost += (not_gluten_meals if bool(self.gluten_free2) else gluten_free) / 10
+            rest_cost += (not_vegi if bool(self.vegetarian2) else vegi) / 10
+            rest_cost += (alcohol if bool(self.alcohol_free2) else no_alcohol) / 100
+            rest_cost += (not_spicy if bool(self.spicy2) else spicy) / 20
+            rest_cost += len(all_rest_meals_df[all_rest_meals_df["price"] > self.max_price2]) / 20
+            cat_count = 0
+            for cat in self.cuisines2:
+                if cat not in categories:
+                    cat_count += 1
+            if cat_count == 1:
+                rest_cost += 10
+            else:
+                rest_cost -= 10
+
+        elif index_diner == 2:
+            rest_cost += (not_gluten_meals if bool(self.gluten_free3) else gluten_free) / 10
+            rest_cost += (not_vegi if bool(self.vegetarian3) else vegi) / 10
+            rest_cost += (alcohol if bool(self.alcohol_free3) else no_alcohol) / 100
+            rest_cost += (not_spicy if bool(self.spicy3) else spicy) / 20
+            rest_cost += len(all_rest_meals_df[all_rest_meals_df["price"] > self.max_price3]) / 20
+            cat_count = 0
+            for cat in self.cuisines3:
+                if cat not in categories:
+                    cat_count += 1
+            if cat_count == 1:
+                rest_cost += 10
+            else:
+                rest_cost -= 10
+        return rest_cost
+
+    def meal_heuristic(self, meal, diner_index):
         pass
 
     def change_rest_state(self, i) -> State:
@@ -261,12 +321,13 @@ class WoltProblem(SearchProblem):
         meal_df = self.data_menu[
             (self.data_menu["rest_name"] == restaurant_name)
             & (self.data_menu["name"] == meal_name)
-        ].reset_index(drop=True)
+            ].reset_index(drop=True)
         return (
-            10 * self.check_veg(meal_index, meal_df)
-            + 10 * self.check_gf(meal_index, meal_df)
-            + self.check_price(meal_index, meal_df)
-            + self.check_spicy(meal_index, meal_df)
+                10 * self.check_veg(meal_index, meal_df)
+                + 10 * self.check_gf(meal_index, meal_df)
+                + self.check_price(meal_index, meal_df)
+                + self.check_spicy(meal_index, meal_df)
+                + self.check_alcohol(meal_index, meal_df)
         )
 
     def restaurant_cost(self, restaurant_name):
@@ -279,7 +340,7 @@ class WoltProblem(SearchProblem):
         if un_satisfied > 2:
             cost += MAX_COST_REST
         else:
-            cost += un_satisfied
+            cost += 50 * un_satisfied
         cost += self.rating_cost(rest)
         cost += self.hungry_loss(rest)
         cost += self.kosher(rest)
@@ -388,8 +449,8 @@ class WoltProblem(SearchProblem):
     def hungry_loss(self, rest):
         if np.sum((self.hungry1, self.hungry2, self.hungry3)) >= 2:
             time_prep = (
-                rest["delivery estimation [minutes]"].values[0]
-                + rest["prep estimation [minutes]"].values[0]
+                    rest["delivery estimation [minutes]"].values[0]
+                    + rest["prep estimation [minutes]"].values[0]
             )
             if time_prep > LossFunc.HUNGRY_MINUTES:
                 return time_prep - LossFunc.HUNGRY_MINUTES
@@ -404,6 +465,26 @@ class WoltProblem(SearchProblem):
         elif diners_avg_rating > rest["rating"].values[0]:
             return diners_avg_rating - rest["rating"].values[0]
         return 0
+
+    def check_alcohol(self, meal_index, meal_df):
+        if meal_index == 0:
+            return (
+                MAX_COST_MEAL / 2
+                if bool(self.alcohol_free1) and meal_df["alcohol_percentage"].values[0] != 0
+                else 0
+            )
+        elif meal_index == 1:
+            return (
+                MAX_COST_MEAL / 2
+                if bool(self.alcohol_free2) and meal_df["alcohol_percentage"].values[0] != 0
+                else 0
+            )
+        elif meal_index == 2:
+            return (
+                MAX_COST_MEAL / 2
+                if bool(self.alcohol_free3) and meal_df["alcohol_percentage"].values[0] != 0
+                else 0
+            )
 
     def kosher(self, rest):
         diners_kosher = (
@@ -435,41 +516,31 @@ if __name__ == "__main__":
     )
     start = timer()
 
-    result = uniform_cost(problem, graph_search=True)
+    result = astar(problem, graph_search=True)
     if result is None:
         print("goal not found")
     else:
-        rest = data_rests[data_rests["name"] == result.state.restaurant].reset_index(
-            drop=True
-        )
-        meal_df1 = data_menu[
-            (data_menu["rest_name"] == result.state.restaurant)
-            & (data_menu["name"] == result.state.meals[0])
-            ].reset_index(drop=True)
-        meal_df2 = data_menu[
-            (data_menu["rest_name"] == result.state.restaurant)
-            & (data_menu["name"] == result.state.meals[1])
-            ].reset_index(drop=True)
-        meal_df3 = data_menu[
-            (data_menu["rest_name"] == result.state.restaurant)
-            & (data_menu["name"] == result.state.meals[2])
-            ].reset_index(drop=True)
         args = LossFunc.user_inputs_to_loss_function_inputs(
             constraints[0],
             constraints[1],
             constraints[2],
-            rest, meal_df1, meal_df2, meal_df3
+            data_rests[data_rests["name"] == result.state.restaurant],
+            data_menu[data_menu["name"] == result.state.meals[0]],
+            # and data_menu["rest_name"] == state.restaurant],
+            data_menu[data_menu["name"] == result.state.meals[1]],
+            # and data_menu["rest_name"] == state.restaurant],
+            data_menu[data_menu["name"] == result.state.meals[2]]
         )
         end = timer()
         print(
             f"----------------{end - start} sec, ---------- Loss = {LossFunc.loss(*args)}---- cost = {result.cost}--\n "
-            f'{result.state.restaurant} - {data_rests[data_rests["name"]==result.state.restaurant].values}\n'
+            f'{result.state.restaurant} - {data_rests[data_rests["name"] == result.state.restaurant].values}\n'
             f"-------------------------------------------\n"
-            f'{result.state.meals[0]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant)&(data_menu["name"] == result.state.meals[0])].values}\n'
+            f'{result.state.meals[0]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[0])].values}\n'
             f"-------------------------------------------\n"
-            f'{result.state.meals[1]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant)&(data_menu["name"] == result.state.meals[1])].values}\n'
+            f'{result.state.meals[1]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[1])].values}\n'
             f"-------------------------------------------\n"
-            f'{result.state.meals[2]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant)&(data_menu["name"] == result.state.meals[2])].values}\n'
+            f'{result.state.meals[2]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[2])].values}\n'
             f"-------------------------------------------\n"
             f"{constraints}"
         )
