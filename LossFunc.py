@@ -101,7 +101,7 @@ def loss(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
     - the meal must be affordable (PH1, PH2, PH3)
     """
 
-    hard_constraints = O * M * K * V1 * V2 * V3 * G1 * G2 * G3 * A1 * A2 * A3
+    hard_constraints = O * M * K * V1 * V2 * V3 * G1 * G2 * G3 * A1 * A2 * A3 * PH1 * PH2 * PH3
     if hard_constraints == 0: # if at least 1 hard constraint is not met, return a loss value of 0
         return 0
 
