@@ -28,7 +28,7 @@ vegetarian - 0
 gluten_free - 0
 alcohol_free - 0
 spiciness - 1
-max_price - 60
+max_price - 65
 min_rating - 1
 hungry - 0
 cuisines - ['tortilla','mexican','nacho']

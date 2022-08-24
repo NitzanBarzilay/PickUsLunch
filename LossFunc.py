@@ -74,7 +74,8 @@ def loss(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
     :param M: (minimal order price) - 1 if the meal's combination surpasses the restaurant's minimal order price, 0 otherwise
     :param K: (kosher) - 1 if at least one diner eats kosher and the restaurant is kosher or none of the diners eat kosher, 0 otherwise
     :param DT: (delivery time) - delivery time + preparation time in minutes
-    :param D: (delivery) - based on avg hunger level among the group. if hunger level is high - 1 if the meal is ready in less than 30 minutes, 0 otherwise. if hunger level is low - 1 if the meal is ready in less than 60 minutes, 0 otherwise.
+    :param D: (delivery) - based on avg hunger level among the group. if hunger level is high - 1 if the meal is ready in less than 30 minutes, 0 otherwise.
+     if hunger level is low - 1 if the meal is ready in less than 60 minutes, 0 otherwise.
     :param RD: (rating difference) - float on a scale of -9 to 9 - the difference between the restaurant's rating and the average rating of the diners
     :param R: (rating) - 1 if the restaurant is above avg desired minimal rating among the group or does not have a rating, 0 otherwise
     :param C: (cuisines) - int  0-3 according to the amount of diners who prefer a cuisine that the restaurant offers.
@@ -83,7 +84,8 @@ def loss(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
     :param A1, A2, A3: (alcohol free) - 1 if the meal matches the alcohol desires of the diner, 0 otherwise
     :param S1, S2, S3: (spicy) - 1 if the meal matches the spiciness desires of the diner, 0 otherwise
     :param PH1, PH2, PH3: (price hard) - 1 if the meal is lower than the diner's desired maximal meal price, 0 otherwise
-    :param PS1, PS2, PS3: (price soft) - difference between diner's maximal price and meals price, 0 if the meal's price is higher than the diner's desired maximal meal price
+    :param PS1, PS2, PS3: (price soft) - difference between diner's maximal price and meals price,
+    0 if the meal's price is higher than the diner's desired maximal meal price
     :return: The loss value of the given inputs, according to the desired hard and soft constraints.
     """
 
