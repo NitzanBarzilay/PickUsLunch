@@ -97,11 +97,11 @@ def naive_search( d1, d2, d3, constrain_file_idx, csv_restaurants = CSV_RESTAURA
 
 # example of usage
 if __name__ == "__main__":
-    constraints = [ "diners_input_constarints/input_constraints_1.txt",
-                    "diners_input_constarints/input_constraints_2.txt",
-                    "diners_input_constarints/input_constraints_3.txt",
-                    "diners_input_constarints/input_constraints_4.txt",
-                    "diners_input_constarints/input_constraints_5.txt"]
+    constraints = [ "example_preferences/input_constraints_1.txt",
+                    "example_preferences/input_constraints_2.txt",
+                    "example_preferences/input_constraints_3.txt",
+                    "example_preferences/input_constraints_4.txt",
+                    "example_preferences/input_constraints_5.txt"]
     for i, constraint in enumerate(constraints):
         d1, d2, d3 = main.get_diners_constraints(constraint)
         naive_search(d1, d2, d3, i + 1)

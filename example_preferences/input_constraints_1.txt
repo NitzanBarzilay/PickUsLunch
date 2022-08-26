@@ -1,25 +1,25 @@
 DINER 1 PREFERENCES
 kosher - 0
-vegetarian - 0
+vegetarian - 1
 gluten_free - 0
 alcohol_free - 0
-spiciness - 0
-max_price - 80
-min_rating - 7
-hungry - 0
-cuisines - ['burger']
+spiciness - 2
+max_price - 75
+min_rating - 8
+hungry - 1
+cuisines - ['noodles','pasta', 'fish', 'curry', 'asian', 'home cooking', 'homemade', 'middle eastern', 'mediterranean', 'mexican','indian', 'greek']
 weekday - sunday
 
 DINER 2 PREFERENCES
 kosher - 0
-vegetarian - 1
+vegetarian - 0
 gluten_free - 0
 alcohol_free - 0
-spiciness - 0
+spiciness - 1
 max_price - 80
-min_rating - 5
+min_rating - 8
 hungry - 0
-cuisines - ['burger', 'hummus']
+cuisines - ['pasta', 'chicken']
 weekday - sunday
 
 DINER 3 PREFERENCES
@@ -28,10 +28,10 @@ vegetarian - 0
 gluten_free - 0
 alcohol_free - 0
 spiciness - 1
-max_price - 80
+max_price - 75
 min_rating - 6
 hungry - 0
-cuisines - ['salad']
+cuisines - ['fish', 'pokebowl', 'poke', 'sushi', 'asian', 'hamburger']
 weekday - sunday
 
 

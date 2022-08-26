@@ -8,7 +8,7 @@ max_price - 100
 min_rating - 8
 hungry - 1
 cuisines - ['dessert','café','french','pastry','sweet']
-weekday - wednesday
+weekday - saturday
 
 DINER 2 PREFERENCES
 kosher - 0
@@ -20,19 +20,19 @@ max_price - 120
 min_rating - 8
 hungry - 1
 cuisines - ['mediterranean','mexican','middle eastern','nacho',noodles','pasta']
-weekday - wednesday
+weekday - saturday
 
 DINER 3 PREFERENCES
 kosher - 0
 vegetarian - 1
-gluten_free - 0
+gluten_free - 1
 alcohol_free - 1
 spiciness - 1
 max_price - 80
 min_rating - 9
 hungry - 0
 cuisines - ['bowl','soup','poke','pokebowl']
-weekday - wednesday
+weekday - saturday
 
 
 --------------------------- HOW TO USE ---------------------------
