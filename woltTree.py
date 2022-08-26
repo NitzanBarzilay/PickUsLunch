@@ -6,7 +6,8 @@ from typing import List, Tuple
 
 import numpy as np
 from simpleai.search import (SearchProblem, breadth_first, depth_first,
-                             uniform_cost, astar)
+                             uniform_cost, astar, greedy, hill_climbing_stochastic, hill_climbing,
+                             hill_climbing_random_restarts, simulated_annealing)
 
 import dataFrameParser
 import LossFunc
@@ -197,7 +198,24 @@ class WoltProblem(SearchProblem):
         return LossFunc.loss(*args) == 0
 
     def value(self, state):
-        pass
+        val = 0
+        if state.restaurant is None:
+            val += 4000
+        if len(state.meals) < 3:
+            val += 2300 * (3 - len(state.meals))
+        if state.restaurant:
+            val += self.restaurant_value(state)
+        for meal in state.meals:
+            val += self.meal_value(
+                state
+            )
+        return 1 / val
+
+    def meal_value(self, state):
+        return self.meal_cost(state.meals[-1], state.restaurant, len(state.meals) - 1) - 10
+
+    def restaurant_value(self, state):
+        return self.restaurant_cost(state.restaurant) - 10
 
     def crossover(self, state1, state2):
         pass
@@ -208,11 +226,13 @@ class WoltProblem(SearchProblem):
     def generate_random_state(self, users=3):
         rest_index = random.randint(0, len(self.data.restaurants) - 1)
         length_meals = len(self.data.meals[rest_index])
+        if length_meals == 1:
+            rest_index = random.randint(0, len(self.data.restaurants) - 1)
         num_of_meals = random.randint(0, users)
         return State(
             self.data.restaurants[rest_index],
             [
-                self.data.meals[rest_index][random.randint(0, length_meals)]
+                self.data.meals[rest_index][random.randint(0, length_meals - 1)]
                 for j in range(num_of_meals)
             ],
         )
@@ -516,7 +536,7 @@ if __name__ == "__main__":
     )
     start = timer()
 
-    result = astar(problem, graph_search=True)
+    result = hill_climbing_random_restarts(problem, 500, 500)  # graph_search=True)
     if result is None:
         print("goal not found")
     else:
