@@ -230,17 +230,17 @@ def get_diners_constraints(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()
         for line in lines[1:9]:
-            diner1.append(int(line.split(" ")[-1]))
+            diner1.append(int(line.strip().split(" ")[-1]))
         diner1.append(list(lines[9].split("[")[-1][:-2].split(" ")))
         diner1.append((lines[10].split(" ")[-1].strip()))
         for line in lines[13:21]:
-            diner2.append(int(line.split(" ")[-1]))
+            diner2.append(int(line.strip().split(" ")[-1]))
         diner2.append(list(lines[21].split("[")[-1][:-2].split(" ")))
-        diner2.append((lines[22].split(" ")[-1].strip()))
+        diner2.append((lines[22]..strip()split(" ")[-1].strip()))
         for line in lines[25:33]:
-            diner3.append(int(line.split(" ")[-1]))
+            diner3.append(int(line.strip().split(" ")[-1]))
         diner3.append(list(lines[33].split("[")[-1][:-2].split(" ")))
-        diner3.append((lines[34].split(" ")[-1].strip()))
+        diner3.append((lines[34].strip().split(" ")[-1].strip()))
 
     return diner1, diner2, diner3
 
@@ -259,8 +259,7 @@ def get_meals_result(V, G, A, S, PH, PS) -> str:
     """
     :return: a string that represents which constraints of the diner were matched by the meal.
     """
-    result = f'    price: {"✅" if PH == 1 else f"❌"}\n'
-    result += f'    price difference: {PS} ILS\n'
+    result = f'    price: {"✅" if PH == 1 else f"❌"}, {PS} ILS cheaper than max meal price\n'
     result += f'    vegetarian: {"✅" if V == 1 else f"❌"}\n'
     result += f'    gluten: {"✅" if G == 1 else f"❌"}\n'
     result += f'    alcohol: {"✅" if A == 1 else f"❌"}\n'
@@ -268,7 +267,7 @@ def get_meals_result(V, G, A, S, PH, PS) -> str:
     return result
 
 
-def save_results(results: list[pd.DataFrame], filename: str, diner1, diner2, diner3) -> None:
+def save_results(results: list[pd.DataFrame], filename: str, diner1, diner2, diner3, algo_name) -> None:
     """
     prints formatted results and saves them to the given filename.
     :param results: a list of 4 dataframes (one for the restaurant and one for each of
@@ -277,12 +276,13 @@ def save_results(results: list[pd.DataFrame], filename: str, diner1, diner2, din
     :param diner1: the diner1 constraints
     :param diner2: the diner2 constraints
     :param diner3: the diner3 constraints
+    :param algo_name: the name of the algorithm that was used to find the results
     :return: None
     """
     rest, meal1, meal2, meal3, runtime = results
     gain_params = user_inputs_to_gain_function_inputs(diner1, diner2, diner3, rest, meal1, meal2, meal3)
     O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3 = gain_params
-    results = ""
+    results = f'{algo_name} algorithm\n'
     results += "----------------- CHOSEN SOLUTION -----------------\n"
     results += f"restaurant: {rest.iloc[0]['name']}\n"
     results += get_restaurant_results(K, O, R, D, C)
@@ -295,10 +295,11 @@ def save_results(results: list[pd.DataFrame], filename: str, diner1, diner2, din
     results += "\n----------------- RESULTS -----------------\n"
     results += f'Gain score: {gain(*gain_params)}\n'
     results += f'Total price: {sum([meal["price"].values[0] for meal in [meal1, meal2, meal3]])}\n'
+    # TODO compare percentiles
     results += f"Runtime: {runtime}\n"
     with open(filename, 'w') as f:
         f.write(str(results))
-    print("DONE! Results saved to given output file. Showing results:")
+    print(f"DONE! Results saved to {filename}. Showing results:")
     print(results)
 
 
@@ -336,11 +337,12 @@ if __name__ == '__main__':
     rest_df = pd.read_csv("data/restaurantsData.csv")
     meals_df = pd.read_csv("data/mealsData.csv")
     if len(sys.argv) == 4:  # specified algorithm
-        algorithm = choose_algorithm(sys.argv[3])
+        chosen_algorithm = sys.argv[3]
     else:  # choose default algorithm
-        algorithm = choose_algorithm("naive")  # TODO decide on default algorithm
+        chosen_algorithm = "genetic" # TODO decide on default algorithm
+    algorithm = choose_algorithm(chosen_algorithm)
     results = algorithm(rest_df, meals_df, diner1, diner2, diner3)
-    save_results(results, sys.argv[2])
+    save_results(results, sys.argv[2], diner1, diner2, diner3,chosen_algorithm)
 
     # df_manager = WoltParser([])
     # restaurants = get_restaurant_list(file_parser=df_manager)
