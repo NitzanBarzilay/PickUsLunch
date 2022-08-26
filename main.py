@@ -248,11 +248,11 @@ def get_restaurant_results(K, O, R, D, C):
     """
     :return: a string that represents which constraints of the diners were matched by the restaurant.
     """
-    results_output = f'    kosher: {"✅" if K == 1 else f"❌"}\n'
-    results_output += f'    open: {"✅" if O == 1 else f"❌"}\n'
+    results_output = f'    open: {"✅" if O == 1 else f"❌"}\n'
+    results_output += f'    kosher: {"✅" if K == 1 else f"❌"}\n'
     results_output += f'    rating: {"✅" if R == 1 else f"❌"}\n'
     results_output += f'    delivery matches hunger level: {"✅" if D == 1 else f"❌"}\n'
-    results_output += f'    cuisines: {"✅" if C == 1 else f"❌"}\n'
+    results_output += f'    cuisines: {"✅" if C == 1 else f"❌"}\n\n'
     return results_output
 
 def get_meals_result(V, G, A, S, PH, PS) -> str:
@@ -264,7 +264,7 @@ def get_meals_result(V, G, A, S, PH, PS) -> str:
     result += f'    vegetarian: {"✅" if V == 1 else f"❌"}\n'
     result += f'    gluten: {"✅" if G == 1 else f"❌"}\n'
     result += f'    alcohol: {"✅" if A == 1 else f"❌"}\n'
-    result += f'    spicy: {"✅" if S == 1 else f"❌"}\n'
+    result += f'    spicy: {"✅" if S == 1 else f"❌"}\n\n'
     return result
 
 
