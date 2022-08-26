@@ -9,7 +9,7 @@ from simpleai.search import (SearchProblem, breadth_first, depth_first,
                              uniform_cost, astar)
 
 import dataFrameParser
-import LossFunc
+import gainFunction
 from main import get_diners_constraints
 
 MAX_COST_REST = 1000
@@ -182,7 +182,7 @@ class WoltProblem(SearchProblem):
         return True
 
     def check_constraints(self, state):
-        args = LossFunc.user_inputs_to_loss_function_inputs(
+        args = LossFunc.user_inputs_to_gain_function_inputs(
             self.constraints[0],
             self.constraints[1],
             self.constraints[2],
@@ -194,7 +194,7 @@ class WoltProblem(SearchProblem):
             self.data_menu[self.data_menu["name"] == state.meals[2]],
             # and self.data_menu["rest_name"] == state.restaurant],
         )
-        return LossFunc.loss(*args) == 0
+        return LossFunc.gain(*args) == 0
 
     def value(self, state):
         pass
@@ -520,7 +520,7 @@ if __name__ == "__main__":
     if result is None:
         print("goal not found")
     else:
-        args = LossFunc.user_inputs_to_loss_function_inputs(
+        args = LossFunc.user_inputs_to_gain_function_inputs(
             constraints[0],
             constraints[1],
             constraints[2],
@@ -533,7 +533,7 @@ if __name__ == "__main__":
         )
         end = timer()
         print(
-            f"----------------{end - start} sec, ---------- Loss = {LossFunc.loss(*args)}---- cost = {result.cost}--\n "
+            f"----------------{end - start} sec, ---------- Loss = {LossFunc.gain(*args)}---- cost = {result.cost}--\n "
             f'{result.state.restaurant} - {data_rests[data_rests["name"] == result.state.restaurant].values}\n'
             f"-------------------------------------------\n"
             f'{result.state.meals[0]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[0])].values}\n'

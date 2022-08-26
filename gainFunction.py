@@ -6,7 +6,7 @@ MUST = 1
 MUST_NOT = 2
 
 
-def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inputs, rest, meal1_df, meal2_df, meal3_df):
+def user_inputs_to_gain_function_inputs(diner1_inputs, diner2_inputs, diner3_inputs, rest, meal1_df, meal2_df, meal3_df):
     """
     Converts the user inputs to the loss function inputs.
     :params diner1_inputs, diner2_inputs, diner3_inputs: user input in format of: [0 - kosher, 1 - vegetarian,
@@ -66,9 +66,9 @@ def user_inputs_to_loss_function_inputs(diner1_inputs, diner2_inputs, diner3_inp
     return [O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3]
 
 
-def loss(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3) -> float:
+def gain(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3) -> float:
     """
-    Loss function for the optimization problem.
+    Gain function that can be used to evaluate the fitness of a solution.
     based on variables per restaurant (open, minimal order price, kosher, delivery time, rating, cuisines) and per diner (vegetarian, gluten free, alcohol_free, spicy, price).
     :param O: (open) - 1 if the restaurant open 0 otherwise
     :param M: (minimal order price) - 1 if the meal's combination surpasses the restaurant's minimal order price, 0 otherwise
@@ -86,7 +86,7 @@ def loss(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
     :param PH1, PH2, PH3: (price hard) - 1 if the meal is lower than the diner's desired maximal meal price, 0 otherwise
     :param PS1, PS2, PS3: (price soft) - difference between diner's maximal price and meals price,
     0 if the meal's price is higher than the diner's desired maximal meal price
-    :return: The loss value of the given inputs, according to the desired hard and soft constraints.
+    :return: The gain value of the given inputs, according to the desired hard and soft constraints.
     """
 
 
