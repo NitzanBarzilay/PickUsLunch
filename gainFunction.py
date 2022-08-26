@@ -73,7 +73,7 @@ def gain(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
     :param O: (open) - 1 if the restaurant open 0 otherwise
     :param M: (minimal order price) - 1 if the meal's combination surpasses the restaurant's minimal order price, 0 otherwise
     :param K: (kosher) - 1 if at least one diner eats kosher and the restaurant is kosher or none of the diners eat kosher, 0 otherwise
-    :param DT: (delivery time) - delivery time + preparation time in minutes
+    :param DT: (delivery time) - HUNGRY_MINUTES - (delivery time + preparation time in minutes)
     :param D: (delivery) - based on avg hunger level among the group. if hunger level is high - 1 if the meal is ready in less than 30 minutes, 0 otherwise.
      if hunger level is low - 1 if the meal is ready in less than 60 minutes, 0 otherwise.
     :param RD: (rating difference) - float on a scale of -9 to 9 - the difference between the restaurant's rating and the average rating of the diners
@@ -115,17 +115,17 @@ def gain(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
     - spiciness preferences (S1, S2, S3)
     - price differences (PS1, PS2, PS3)
     """
-    DELIVERY_W = -1
+    DELIVERY_W = 1
     RATING_W = 1
-    CUISINE_W = 1
-    SPICY_W = 1
-    PRICE_W = 2
+    CUISINE_W = 1/3
+    SPICY_W = 1/3
+    PRICE_W = 1/6
 
-    loss = (D * DT) / 60 * DELIVERY_W
-    loss += RD * RATING_W
-    loss +=  ((PS1 + PS2 + PS3) / 3) / 10 * PRICE_W
-    loss += C * CUISINE_W
-    loss += (S1 + S2 + S3) * SPICY_W
-
-    return loss
+    delivery_gain = (D * DT) / 60 * DELIVERY_W
+    rating_gain = RD * RATING_W
+    price_gain =  ((PS1 + PS2 + PS3) / 3) / 10 * PRICE_W
+    cuisine_gain = C * CUISINE_W
+    spicy_gain = (S1 + S2 + S3) * SPICY_W
+    sum = (delivery_gain + rating_gain + price_gain + cuisine_gain + spicy_gain)
+    return sum
 

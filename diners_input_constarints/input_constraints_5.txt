@@ -1,0 +1,130 @@
+DINER 1 PREFERENCES
+kosher - 0
+vegetarian - 0
+gluten_free - 0
+alcohol_free - 1
+spiciness - 2
+max_price - 100
+min_rating - 8
+hungry - 1
+cuisines - ['dessert','café','french','pastry','sweet']
+weekday - saturday
+
+DINER 2 PREFERENCES
+kosher - 0
+vegetarian - 0
+gluten_free - 0
+alcohol_free - 0
+spiciness - 0
+max_price - 120
+min_rating - 8
+hungry - 1
+cuisines - ['mediterranean','mexican','middle eastern','nacho',noodles','pasta']
+weekday - saturday
+
+DINER 3 PREFERENCES
+kosher - 0
+vegetarian - 1
+gluten_free - 1
+alcohol_free - 1
+spiciness - 1
+max_price - 80
+min_rating - 9
+hungry - 0
+cuisines - ['bowl','soup','poke','pokebowl']
+weekday - saturday
+
+
+--------------------------- HOW TO USE ---------------------------
+for each diner, replace each parameter according to the following legend:
+kosher - 1 for must be kosher / 0 for doesn't matter
+vegetarian - 1 for must be vegetarian / 0 for doesn't matter
+gluten_free - 1 for must be gluten free / 0 for doesn't matter
+alcohol_free - 1 for must be alcohol free / 0 for doesn't matter
+spiciness - 2 for prefer **not** spicy / 1 for prefer spicy / 0 for doesn't matter
+max_price - in ILS, maximum price that the diner is willing to pay (including delivery)
+min_rating - range from 1 to 10, minimum restaurant rating that the diner is willing to order from (if doesn't matter - choose 1)
+hungry - 1 if very hungry (can't wait longer than 45 minutes for the food to arrive) / 0 for not very hungry
+cuisines - list of comma separated cuisines that the diner would prefer to order from (from cuisine list provided below)
+weekday - sunday / monday / tuesday / wednesday / thursday / friday / saturday
+
+* MAKE SURE **NOT** TO LEAVE A SPACE OR A DOT AT THE END OF THE CONSTRAINT ROW
+* DO NOT CHANGE ANYTHING BUT THE VALUE OF EACH PREFERENCE (including spacing within and between rows)
+
+--------------------------- PLEASE NOTE ---------------------------
+* In any of the "must" preferences (kosher / vegetarian / GF / alcohol free),
+  if you choose "must" we will ensure that the meal you'll receive explicitly matches that preference,
+  but it might disqualify options that does not match it explicitly (e.g. if you choose "must be vegetarian",
+  vegetarian meals who's name doesn't explicitly mention that they're vegetarian will be disqualified).
+  Therefore, take into consideration that any "must" condition you choose, may limit your possible meals options considerably.
+* In any of the "prefer" preferences (spiciness, cuisine), if you choose "prefer" we will try to choose a meal
+  that matches that preference, but it is not guaranteed.
+
+------------------------- CUISINE LIST -------------------------
+for the cuisine preferences, choose as many as you like from the following list:
+'american'
+'Arabic'
+'asian'
+'bagel'
+'bakery'
+'bowl'
+'bread'
+'breakfast'
+'burger'
+'café'
+'Central Asian'
+'chicken'
+'coffe'
+'cookies'
+'curry'
+'Dessert'
+'dessert'
+'desserts'
+'dinner'
+'ethnic'
+'fish'
+'french'
+'fresh'
+'georgian'
+'greek'
+'grill'
+'hamburger'
+'healthy'
+'home cooking'
+'homemade'
+'hummus'
+'ice cream'
+'indian'
+'italian'
+'japanese'
+'kebab'
+'kids'
+'lunch'
+'meat'
+'mediterranean'
+'mexican'
+'middle eastern'
+'nacho'
+'noodles'
+'pasta'
+'pastries'
+'pastry'
+'pita'
+'pizza'
+'poke'
+'pokebowl'
+'salad'
+'sandwich'
+'Sandwiches'
+'schnitzel'
+'smoothie'
+'soup'
+'steak'
+'street food'
+'sushi'
+'sweet'
+'sweets'
+'thai'
+'tortilla'
+'vegetable'
+'wrap'
