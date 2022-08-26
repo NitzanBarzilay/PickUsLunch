@@ -302,7 +302,7 @@ def save_results(results: list[pd.DataFrame], filename: str, diner1, diner2, din
     print(results)
 
 
-def choose_algorithm(algorithm: str):  # TODO call actual functions
+def choose_algorithm(algorithm: str):
     """
     Returns an algorithm fucntion based on the algorithm name.
     :param algorithm: algorithm name
@@ -333,11 +333,13 @@ if __name__ == '__main__':
         print("Usage: python3 main.py <preference_file_path> <output_file_path> <algorithm> (algorithm optional)")
         exit(1)
     diner1, diner2, diner3 = get_diners_constraints(sys.argv[1])
+    rest_df = pd.read_csv("data/restaurantsData.csv")
+    meals_df = pd.read_csv("data/mealsData.csv")
     if len(sys.argv) == 4:  # specified algorithm
         algorithm = choose_algorithm(sys.argv[3])
     else:  # choose default algorithm
         algorithm = choose_algorithm("naive")  # TODO decide on default algorithm
-    results = algorithm(diner1, diner2, diner3)
+    results = algorithm(rest_df, meals_df, diner1, diner2, diner3)
     save_results(results, sys.argv[2])
 
     # df_manager = WoltParser([])
