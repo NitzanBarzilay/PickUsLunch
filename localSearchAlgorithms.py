@@ -516,23 +516,83 @@ class WoltProblem(SearchProblem):
             return MAX_COST_REST
         return 0
 
+
 # ---------------------------------------- ALgorithm wrapper functions  ------------------------------------------------
 def DFSAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    DFS algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
     pass
+
 
 def UCSAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    UCS algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
     pass
+
 
 def AStarAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    A star algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
     pass
+
 
 def HillClimbingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    Hill climbing algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
     pass
+
 
 def StochasticHillClimbingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    Stochastic hill climbing algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
     pass
 
+
 def SimulatedAnnealingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    simulated annealing algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
     pass
 
 

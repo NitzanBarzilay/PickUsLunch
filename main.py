@@ -10,8 +10,12 @@ from dataFrameParser import WoltParser
 from gainFunction import user_inputs_to_gain_function_inputs, gain
 from naiveAlgorithm import NaiveAlgorithm
 from geneticAlgorithm import GeneticAlgorithm
-from localSearchAlgorithms import DFSAlgorithm, UCSAlgorithm, AStarAlgorithm, HillClimbingAlgorithm, StochasticHillClimbingAlgorithm, SimulatedAnnealingAlgorithm
+from localSearchAlgorithms import DFSAlgorithm, UCSAlgorithm, AStarAlgorithm, HillClimbingAlgorithm, \
+    StochasticHillClimbingAlgorithm, SimulatedAnnealingAlgorithm
 
+INPUT_FILE = 1
+OUTPUT_FILE = 2
+ALGORITHM = 3
 
 class Wolt:
     HEADERS = {
@@ -244,6 +248,7 @@ def get_diners_constraints(filename):
 
     return diner1, diner2, diner3
 
+
 def get_restaurant_results(K, O, R, D, C):
     """
     :return: a string that represents which constraints of the diners were matched by the restaurant.
@@ -254,6 +259,7 @@ def get_restaurant_results(K, O, R, D, C):
     results_output += f'    delivery matches hunger level: {"✅" if D == 1 else f"❌"}\n'
     results_output += f'    cuisines: {"✅" if C == 1 else f"❌"}\n\n'
     return results_output
+
 
 def get_meals_result(V, G, A, S, PH, PS) -> str:
     """
@@ -333,16 +339,16 @@ if __name__ == '__main__':
     if len(sys.argv) not in [3, 4]:
         print("Usage: python3 main.py <preference_file_path> <output_file_path> <algorithm> (algorithm optional)")
         exit(1)
-    diner1, diner2, diner3 = get_diners_constraints(sys.argv[1])
+    diner1, diner2, diner3 = get_diners_constraints(sys.argv[INPUT_FILE])
     rest_df = pd.read_csv("data/restaurantsData.csv")
     meals_df = pd.read_csv("data/mealsData.csv")
     if len(sys.argv) == 4:  # specified algorithm
-        chosen_algorithm = sys.argv[3]
+        chosen_algorithm = sys.argv[ALGORITHM]
     else:  # choose default algorithm
-        chosen_algorithm = "genetic" # TODO decide on default algorithm
+        chosen_algorithm = "genetic"  # TODO decide on default algorithm
     algorithm = choose_algorithm(chosen_algorithm)
     results = algorithm(rest_df, meals_df, diner1, diner2, diner3)
-    save_results(results, sys.argv[2], diner1, diner2, diner3,chosen_algorithm)
+    save_results(results, sys.argv[OUTPUT_FILE], diner1, diner2, diner3, chosen_algorithm)
 
     # df_manager = WoltParser([])
     # restaurants = get_restaurant_list(file_parser=df_manager)
