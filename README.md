@@ -13,7 +13,7 @@ python3 main.py <preference_file_path> <output_file_path> <algorithm>
 ```
 with the following inputs:
 1. preference_file_path - path to the preference file you have created / one of the example prefrences files provided
-2. output_file_path - path to a file wehre the results will be saved to
+2. output_file_path - path to save results to
 3. algorithm (optional) - if not specified, the default algorithm will be ran. If you want, you can choose a specific algorithm from the following list:
    - naive
    - dfs
