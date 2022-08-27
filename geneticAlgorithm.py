@@ -118,6 +118,7 @@ def print_dish(solution, const, i):
 
     print('-' * 50)
 
+# ---------------------------------------- Algorithm wrapper functions  ------------------------------------------------
 
 def mutation_func(offspring, ga_instance):
     global database
@@ -174,6 +175,15 @@ def crossover_func(parents, offspring_size, ga_instance):
 
 
 def GeneticAlgorithm(_rest_df, meals_df, diner_1, diner_2, diner_3):
+    """
+    Genetic algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
     global user_input, database, res
 
     # initialize:
