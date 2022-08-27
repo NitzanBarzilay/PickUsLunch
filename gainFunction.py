@@ -118,8 +118,8 @@ def gain(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
     DELIVERY_W = 1
     RATING_W = 1
     CUISINE_W = 1/3
-    SPICY_W = 1/3
-    PRICE_W = 1/6
+    SPICY_W = 1/2
+    PRICE_W = 1/2
 
     delivery_gain = (D * DT) / 60 * DELIVERY_W
     rating_gain = RD * RATING_W
