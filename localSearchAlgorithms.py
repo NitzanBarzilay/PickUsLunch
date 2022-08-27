@@ -10,83 +10,11 @@ from simpleai.search import (SearchProblem, breadth_first, depth_first,
                              hill_climbing_random_restarts, simulated_annealing)
 
 import dataFrameParser
-import LossFunc
+import gainFunction
 from main import get_diners_constraints
 
 MAX_COST_REST = 1000
 MAX_COST_MEAL = 100
-
-
-# ---------------------------------------------- Functions -----------------------------------------------------------
-def init_problem(rest_df, meals_df, diner1, diner2, diner3):
-    restaurants = get_rest_lst(rest_df)
-    meals = get_menus_meals(meals_df, restaurants)
-    history = Data(restaurants, meals)
-    action_obj = Action(history)
-    constraints = diner1, diner2, diner3
-    init_state = State(rest=None, meals=[])
-    return WoltProblem(
-        history, action_obj, init_state, constraints, data_rests, data_menu)
-
-
-def run_algorithm(algo, input, rest_df, meals_df, diner1, diner2, diner3):
-    problem = init_problem(rest_df, meals_df, diner1, diner2, diner3)
-    start = timer()
-    result = algo(problem, input)
-    end = timer()
-    if result is None:
-        print("goal not found")
-        return
-    else:
-        args = LossFunc.user_inputs_to_loss_function_inputs(
-            constraints[0],
-            constraints[1],
-            constraints[2],
-            data_rests[data_rests["name"] == result.state.restaurant],
-            data_menu[data_menu["name"] == result.state.meals[0]],
-            # and data_menu["rest_name"] == state.restaurant],
-            data_menu[data_menu["name"] == result.state.meals[1]],
-            # and data_menu["rest_name"] == state.restaurant],
-            data_menu[data_menu["name"] == result.state.meals[2]]
-        )
-        # delete when done
-        print(
-            f"----------------{end - start} sec, ---------- Loss = {LossFunc.loss(*args)}---- cost = {result.cost}--\n "
-            f'{result.state.restaurant} - {data_rests[data_rests["name"] == result.state.restaurant].values}\n'
-            f"-------------------------------------------\n"
-            f'{result.state.meals[0]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[0])].values}\n'
-            f"-------------------------------------------\n"
-            f'{result.state.meals[1]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[1])].values}\n'
-            f"-------------------------------------------\n"
-            f'{result.state.meals[2]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[2])].values}\n'
-            f"-------------------------------------------\n"
-            f"{constraints}"
-        )
-    return result.state.restaurant, result.state.meals, end - start
-
-
-def DFSAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
-    return run_algorithm(depth_first, True, rest_df, meals_df, diner1, diner2, diner3)
-
-
-def UCSAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
-    return run_algorithm(uniform_cost, True, rest_df, meals_df, diner1, diner2, diner3)
-
-
-def AstarAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
-    return run_algorithm(astar, True, rest_df, meals_df, diner1, diner2, diner3)
-
-
-def HillClimbingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
-    return run_algorithm(hill_climbing, 1000, rest_df, meals_df, diner1, diner2, diner3)
-
-
-def StochasticHillClimbingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
-    return run_algorithm(hill_climbing_stochastic, 1000, rest_df, meals_df, diner1, diner2, diner3)
-
-
-def SimulatedAnnealingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
-    return run_algorithm(simulated_annealing, 1000, rest_df, meals_df, diner1, diner2, diner3)
 
 
 # ----------------------------------------------  State --------------------------------------------------------------
@@ -255,7 +183,7 @@ class WoltProblem(SearchProblem):
         return True
 
     def check_constraints(self, state):
-        args = LossFunc.user_inputs_to_loss_function_inputs(
+        args = LossFunc.user_inputs_to_gain_function_inputs(
             self.constraints[0],
             self.constraints[1],
             self.constraints[2],
@@ -267,7 +195,7 @@ class WoltProblem(SearchProblem):
             self.data_menu[self.data_menu["name"] == state.meals[2]],
             # and self.data_menu["rest_name"] == state.restaurant],
         )
-        return LossFunc.loss(*args) == 0
+        return LossFunc.gain(*args) == 0
 
     def value(self, state):
         val = 0
@@ -589,11 +517,129 @@ class WoltProblem(SearchProblem):
         return 0
 
 
+# ---------------------------------------- ALgorithm wrapper functions  ------------------------------------------------
+def DFSAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    DFS algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
+    pass
+
+
+def UCSAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    UCS algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
+    pass
+
+
+def AStarAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    A star algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
+    pass
+
+
+def HillClimbingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    Hill climbing algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
+    pass
+
+
+def StochasticHillClimbingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    Stochastic hill climbing algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
+    pass
+
+
+def SimulatedAnnealingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    """
+    simulated annealing algorithm wrapper function. returns the solution that the algorithm chose (restaurant and 3 meals) and it's runtime.
+    :param rest_df: restaurant dataframe
+    :param meals_df: meals dataframe
+    :param diner1: list of 1st diner preferences
+    :param diner2: list of 2nd diner preferences
+    :param diner3: list of 3rd diner preferences
+    :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
+    """
+    pass
+
+
 # ---------------------------------------------- main  ---------------------------------------------------------------
 if __name__ == "__main__":
     df = dataFrameParser.WoltParser([], init_files=False)
     df.get_dfs()
     data_rests = df.general_df
     data_menu = df.menus_df
+    restaurants = get_rest_lst(data_rests)
+    meals = get_menus_meals(data_menu, restaurants)
+    history = Data(restaurants, meals)
+    action_obj = Action(history)
+    print(restaurants)
+    print(meals)
     constraints = [*get_diners_constraints(sys.argv[1])]
-    HillClimbingAlgorithm(data_rests, data_menu, constraints[0], constraints[1], constraints[2])
+    init_state = State(rest=None, meals=[])
+    problem = WoltProblem(
+        history, action_obj, init_state, constraints, data_rests, data_menu
+    )
+    start = timer()
+
+    result = hill_climbing_random_restarts(problem, 500, 500)  # graph_search=True)
+    if result is None:
+        print("goal not found")
+    else:
+        args = LossFunc.user_inputs_to_gain_function_inputs(
+            constraints[0],
+            constraints[1],
+            constraints[2],
+            data_rests[data_rests["name"] == result.state.restaurant],
+            data_menu[data_menu["name"] == result.state.meals[0]],
+            # and data_menu["rest_name"] == state.restaurant],
+            data_menu[data_menu["name"] == result.state.meals[1]],
+            # and data_menu["rest_name"] == state.restaurant],
+            data_menu[data_menu["name"] == result.state.meals[2]]
+        )
+        end = timer()
+        print(
+            f"----------------{end - start} sec, ---------- Loss = {LossFunc.gain(*args)}---- cost = {result.cost}--\n "
+            f'{result.state.restaurant} - {data_rests[data_rests["name"] == result.state.restaurant].values}\n'
+            f"-------------------------------------------\n"
+            f'{result.state.meals[0]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[0])].values}\n'
+            f"-------------------------------------------\n"
+            f'{result.state.meals[1]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[1])].values}\n'
+            f"-------------------------------------------\n"
+            f'{result.state.meals[2]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[2])].values}\n'
+            f"-------------------------------------------\n"
+            f"{constraints}"
+        )

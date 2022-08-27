@@ -7,7 +7,15 @@ from time import sleep
 import tqdm
 import sys
 from dataFrameParser import WoltParser
+from gainFunction import user_inputs_to_gain_function_inputs, gain
+from naiveAlgorithm import NaiveAlgorithm
+from geneticAlgorithm import GeneticAlgorithm
+from localSearchAlgorithms import DFSAlgorithm, UCSAlgorithm, AStarAlgorithm, HillClimbingAlgorithm, \
+    StochasticHillClimbingAlgorithm, SimulatedAnnealingAlgorithm
 
+INPUT_FILE = 1
+OUTPUT_FILE = 2
+ALGORITHM = 3
 
 class Wolt:
     HEADERS = {
@@ -175,7 +183,7 @@ class Restaurant:
                                       is_veg, gluten_free, is_spicy, item.image, item.days))
 
 
-def get_restaurant_list(number_of_rests=None, file_parser : WoltParser = None, save_to_file : bool = False):
+def get_restaurant_list(number_of_rests=None, file_parser: WoltParser = None, save_to_file: bool = False):
     wolt = Wolt()
 
     # Get the matching streets
@@ -226,26 +234,122 @@ def get_diners_constraints(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()
         for line in lines[1:9]:
-            diner1.append(int(line.split(" ")[-1]))
+            diner1.append(int(line.strip().split(" ")[-1]))
         diner1.append(list(lines[9].split("[")[-1][:-2].split(" ")))
         diner1.append((lines[10].split(" ")[-1].strip()))
         for line in lines[13:21]:
-            diner2.append(int(line.split(" ")[-1]))
+            diner2.append(int(line.strip().split(" ")[-1]))
         diner2.append(list(lines[21].split("[")[-1][:-2].split(" ")))
-        diner2.append((lines[22].split(" ")[-1].strip()))
+        diner2.append((lines[22].strip().split(" ")[-1].strip()))
         for line in lines[25:33]:
-            diner3.append(int(line.split(" ")[-1]))
+            diner3.append(int(line.strip().split(" ")[-1]))
         diner3.append(list(lines[33].split("[")[-1][:-2].split(" ")))
-        diner3.append((lines[34].split(" ")[-1].strip()))
+        diner3.append((lines[34].strip().split(" ")[-1].strip()))
 
     return diner1, diner2, diner3
 
 
-if __name__ == '__main__':
-    # diner1, diner2, diner3 = get_diners_constraints(sys.argv[1])
+def get_restaurant_results(K, O, R, D, C):
+    """
+    :return: a string that represents which constraints of the diners were matched by the restaurant.
+    """
+    results_output = f'    open: {"✅" if O == 1 else f"❌"}\n'
+    results_output += f'    kosher: {"✅" if K == 1 else f"❌"}\n'
+    results_output += f'    rating: {"✅" if R == 1 else f"❌"}\n'
+    results_output += f'    delivery matches hunger level: {"✅" if D == 1 else f"❌"}\n'
+    results_output += f'    cuisines: {"✅" if C == 1 else f"❌"}\n\n'
+    return results_output
 
-    # call here to any algorithm that you want to use
-    # TODO add here the algorithm you want to use
-    df_manager = WoltParser([])
-    restaurants = get_restaurant_list(file_parser=df_manager)
-    df_manager.crate_restaurants_df()
+
+def get_meals_result(V, G, A, S, PH, PS) -> str:
+    """
+    :return: a string that represents which constraints of the diner were matched by the meal.
+    """
+    result = f'    price: {"✅" if PH == 1 else f"❌"}, {PS} ILS cheaper than max meal price\n'
+    result += f'    vegetarian: {"✅" if V == 1 else f"❌"}\n'
+    result += f'    gluten: {"✅" if G == 1 else f"❌"}\n'
+    result += f'    alcohol: {"✅" if A == 1 else f"❌"}\n'
+    result += f'    spicy: {"✅" if S == 1 else f"❌"}\n\n'
+    return result
+
+
+def save_results(results: list[pd.DataFrame], filename: str, diner1, diner2, diner3, algo_name) -> None:
+    """
+    prints formatted results and saves them to the given filename.
+    :param results: a list of 4 dataframes (one for the restaurant and one for each of
+    the 3 diners) and a float representing the running time
+    :param filename: output filename
+    :param diner1: the diner1 constraints
+    :param diner2: the diner2 constraints
+    :param diner3: the diner3 constraints
+    :param algo_name: the name of the algorithm that was used to find the results
+    :return: None
+    """
+    rest, meal1, meal2, meal3, runtime = results
+    gain_params = user_inputs_to_gain_function_inputs(diner1, diner2, diner3, rest, meal1, meal2, meal3)
+    O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S3, PH1, PH2, PH3, PS1, PS2, PS3 = gain_params
+    results = f'{algo_name} algorithm\n'
+    results += "----------------- CHOSEN SOLUTION -----------------\n"
+    results += f"restaurant: {rest.iloc[0]['name']}\n"
+    results += get_restaurant_results(K, O, R, D, C)
+    results += f"Meal for 1st diner: {meal1['name'].values[0]}\n"
+    results += get_meals_result(V1, G1, A1, S1, PH1, PS1)
+    results += f"Meal for 2nd diner: {meal2['name'].values[0]}\n"
+    results += get_meals_result(V2, G2, A2, S2, PH2, PS2)
+    results += f"Meal for 3rd diner: {meal3['name'].values[0]}\n"
+    results += get_meals_result(V3, G3, A3, S3, PH3, PS3)
+    results += "\n----------------- RESULTS -----------------\n"
+    results += f'Gain score: {gain(*gain_params)}\n'
+    results += f'Total price: {sum([meal["price"].values[0] for meal in [meal1, meal2, meal3]])}\n'
+    # TODO compare percentiles
+    results += f"Runtime: {runtime}\n"
+    with open(filename, 'w') as f:
+        f.write(str(results))
+    print(f"DONE! Results saved to {filename}. Showing results:")
+    print(results)
+
+
+def choose_algorithm(algorithm: str):
+    """
+    Returns an algorithm fucntion based on the algorithm name.
+    :param algorithm: algorithm name
+    :return: algorithm function
+    """
+    if algorithm == "naive":
+        return NaiveAlgorithm
+    elif algorithm == "dfs":
+        return DFSAlgorithm
+    elif algorithm == "ucs":
+        return UCSAlgorithm
+    elif algorithm == "astar":
+        return AStarAlgorithm
+    elif algorithm == "hill_climbing":
+        return HillClimbingAlgorithm
+    elif algorithm == "stochastic_hill_climbing":
+        return StochasticHillClimbingAlgorithm
+    elif algorithm == "simulated_annealing":
+        return SimulatedAnnealingAlgorithm
+    elif algorithm == "genetic":
+        return GeneticAlgorithm
+    else:
+        raise ValueError(f"Algorithm {algorithm} not recognized.")
+
+
+if __name__ == '__main__':
+    if len(sys.argv) not in [3, 4]:
+        print("Usage: python3 main.py <preference_file_path> <output_file_path> <algorithm> (algorithm optional)")
+        exit(1)
+    diner1, diner2, diner3 = get_diners_constraints(sys.argv[INPUT_FILE])
+    rest_df = pd.read_csv("data/restaurantsData.csv")
+    meals_df = pd.read_csv("data/mealsData.csv")
+    if len(sys.argv) == 4:  # specified algorithm
+        chosen_algorithm = sys.argv[ALGORITHM]
+    else:  # choose default algorithm
+        chosen_algorithm = "genetic"  # TODO decide on default algorithm
+    algorithm = choose_algorithm(chosen_algorithm)
+    results = algorithm(rest_df, meals_df, diner1, diner2, diner3)
+    save_results(results, sys.argv[OUTPUT_FILE], diner1, diner2, diner3, chosen_algorithm)
+
+    # df_manager = WoltParser([])
+    # restaurants = get_restaurant_list(file_parser=df_manager)
+    # df_manager.crate_restaurants_df()
