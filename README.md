@@ -6,7 +6,8 @@ text here
 ## Algorithms used
 text here
 ## How to use
-To use the assistant, clone the repo. Then, create a txt file that represents the constraints and preferences of each diner (example files including instructions are found [here](https://github.com/NitzanBarzilay/PickUsLunch/tree/main/example_preferences)). After creating the preferences file, you can run the PickUsLunch AI assistant using the one of the following commands:
+To use the assistant, clone the repo and make sure you have the required packages installed on your environment. 
+Then, create a txt file that represents the constraints and preferences of each diner (example files including instructions are found [here](https://github.com/NitzanBarzilay/PickUsLunch/tree/main/example_preferences)). After creating the preferences file, you can run the PickUsLunch AI assistant using the one of the following commands:
 ```
 python3 main.py <preference_file_path> <output_file_path>
 python3 main.py <preference_file_path> <output_file_path> <algorithm>
