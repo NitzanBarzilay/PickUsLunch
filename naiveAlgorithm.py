@@ -93,6 +93,9 @@ def naive_search( d1, d2, d3, constrain_file_idx, csv_restaurants = CSV_RESTAURA
     print(f'Chosen restaurant score - {chosen_restaurant_score}')
     print(f'Chosen restaurant meals - {chosen_restaurant_meals}')
 
+# ---------------------------------------- Algorithm wrapper functions  ------------------------------------------------
+def NaiveAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    pass
 
 
 # example of usage

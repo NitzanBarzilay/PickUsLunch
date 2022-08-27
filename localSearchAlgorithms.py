@@ -516,6 +516,25 @@ class WoltProblem(SearchProblem):
             return MAX_COST_REST
         return 0
 
+# ---------------------------------------- ALgorithm wrapper functions  ------------------------------------------------
+def DFSAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    pass
+
+def UCSAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    pass
+
+def AStarAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    pass
+
+def HillClimbingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    pass
+
+def StochasticHillClimbingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    pass
+
+def SimulatedAnnealingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
+    pass
+
 
 # ---------------------------------------------- main  ---------------------------------------------------------------
 if __name__ == "__main__":

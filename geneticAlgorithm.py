@@ -110,6 +110,7 @@ def print_dish(solution, const, i):
 
     print('-' * 50)
 
+# ---------------------------------------- Algorithm wrapper functions  ------------------------------------------------
 
 def GeneticAlgorithm(_rest_df, meals_df, diner_1, diner_2, diner_3):
     global user_input, database, res

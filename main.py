@@ -7,10 +7,10 @@ from time import sleep
 import tqdm
 import sys
 from dataFrameParser import WoltParser
-from gainFunction import *
-import naiveAlgorithm as naive
-import geneticAlgorithm as genetic
-import localSearchAlgorithms as local
+from gainFunction import user_inputs_to_gain_function_inputs, gain
+from naiveAlgorithm import NaiveAlgorithm
+from geneticAlgorithm import GeneticAlgorithm
+from localSearchAlgorithms import DFSAlgorithm, UCSAlgorithm, AStarAlgorithm, HillClimbingAlgorithm, StochasticHillClimbingAlgorithm, SimulatedAnnealingAlgorithm
 
 
 class Wolt:
@@ -310,21 +310,21 @@ def choose_algorithm(algorithm: str):
     :return: algorithm function
     """
     if algorithm == "naive":
-        return naive.NaiveAlgorithm()
+        return NaiveAlgorithm
     elif algorithm == "dfs":
-        return local.DFSAlgorithm()
+        return DFSAlgorithm
     elif algorithm == "ucs":
-        return local.UCSAlgorithm()
+        return UCSAlgorithm
     elif algorithm == "astar":
-        return local.AstarAlgorithm()
+        return AStarAlgorithm
     elif algorithm == "hill_climbing":
-        return local.HillClimberAlgorithm()
+        return HillClimbingAlgorithm
     elif algorithm == "stochastic_hill_climbing":
-        return local.StochasticHillClimbingAlgorithm()
+        return StochasticHillClimbingAlgorithm
     elif algorithm == "simulated_annealing":
-        return local.SimulatedAnnealingAlgorithm()
+        return SimulatedAnnealingAlgorithm
     elif algorithm == "genetic":
-        return genetic.GeneticAlgorithm()
+        return GeneticAlgorithm
     else:
         raise ValueError(f"Algorithm {algorithm} not recognized.")
 
