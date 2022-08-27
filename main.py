@@ -236,7 +236,7 @@ def get_diners_constraints(filename):
         for line in lines[13:21]:
             diner2.append(int(line.strip().split(" ")[-1]))
         diner2.append(list(lines[21].split("[")[-1][:-2].split(" ")))
-        diner2.append((lines[22]..strip()split(" ")[-1].strip()))
+        diner2.append((lines[22].strip().split(" ")[-1].strip()))
         for line in lines[25:33]:
             diner3.append(int(line.strip().split(" ")[-1]))
         diner3.append(list(lines[33].split("[")[-1][:-2].split(" ")))
