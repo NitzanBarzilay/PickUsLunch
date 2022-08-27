@@ -83,14 +83,22 @@ def fitness_function(solution, solution_idx):
 
     soft_price = np.mean(
         [s * (p['price'] / ip) for (s, (p, ip)) in zip(price_const, zip(solution, user_input["price"]))])
+    # [s * ((ip - p['price']) / ip) for (s, (p, ip)) in zip(price_const, zip(solution, user_input["price"]))])
 
-    soft_const = np.mean([soft_price,
-                          sum(vegetarian_const) / user_input['people'],
-                          sum(GF_const) / user_input['people'],
-                          sum(spicy_const) / user_input['people'],
-                          sum(alcohol_percentage_const) / user_input['people'],
-                          ])
-    fitness = np.mean([int(hard_const), soft_const])
+    soft_const = np.average([soft_price,
+                             np.mean(vegetarian_const),
+                             np.mean(GF_const),
+                             np.mean(spicy_const),
+                             np.mean(alcohol_percentage_const),
+                             ],
+                            weights=[1,  # price
+                                     1,  # vegetarian
+                                     1.5,  # gluten free
+                                     1,  # spicy
+                                     1,  # alcohol
+                                     ])
+
+    fitness = np.mean([hard_const, soft_const])
     res.append(fitness)
 
     return fitness
@@ -109,6 +117,60 @@ def print_dish(solution, const, i):
     print(f'alcohol: {f"✅" if (dish["alcohol_percentage"] > 0) == const["alcohol_percentage"][i] else f"❌"}')
 
     print('-' * 50)
+
+
+def mutation_func(offspring, ga_instance):
+    global database
+
+    # for j, _ in enumerate(offspring):
+    #     if np.random.choice([True, False], p=[ga_instance.mutation_probability,
+    #                                           1 - ga_instance.mutation_probability]):
+    #
+    #         mutation = np.random.randint(0, max(len(database) - 1, 0))
+    #         offspring[j] = mutation
+    #         # break
+    #
+    # return np.array(offspring)
+
+    # prev = deepcopy(offspring)
+
+    if not len(database):
+        return offspring
+
+    for i, sol in enumerate(offspring):
+        for j, _ in enumerate(sol):
+            if np.random.choice([True, False], p=[ga_instance.mutation_probability,
+                                                  1 - ga_instance.mutation_probability]):
+
+                mutation = np.random.randint(0, max(len(database) - 1, 0))
+                offspring[i][j] = mutation
+
+    # print('in:')
+    # print(prev)
+    # print('out:')
+    # print(offspring)
+    return offspring
+
+
+
+def crossover_func(parents, offspring_size, ga_instance):
+    offspring = []
+
+    for i in range(offspring_size[0]):
+        idx = np.random.randint(0, parents.shape[0], 2)
+        p1, p2 = parents[idx[0]], parents[idx[1]]
+
+        genes = []
+        for i in range(parents.shape[1]):
+            genes.append(int(random.getrandbits(1)))
+
+        genes = np.array(genes)
+
+        child = (p1 * genes) + (p2 * abs(1-genes))
+        offspring.append(child)
+    offspring = np.array(offspring)
+    # print(offspring)
+    return offspring
 
 
 def GeneticAlgorithm(_rest_df, meals_df, diner_1, diner_2, diner_3):
@@ -137,6 +199,10 @@ def GeneticAlgorithm(_rest_df, meals_df, diner_1, diner_2, diner_3):
     random.shuffle(groups)
 
     for restaurant, database in groups:
+        if len(database) <= 3:
+            continue
+        # print('-' * 100)
+
         # print('...')
         rest_input = rest_df.loc[restaurant]
         delivery_per_person = rest_input["delivery price"] / 3
@@ -153,20 +219,20 @@ def GeneticAlgorithm(_rest_df, meals_df, diner_1, diner_2, diner_3):
 
         # choose run params:
         ga_instance = pygad.GA(num_generations=100,
-                               num_parents_mating=5,
-                               sol_per_pop=10,
+                               num_parents_mating=3,
+                               sol_per_pop=5,
                                num_genes=user_input['people'],
 
                                init_range_low=0,
-                               init_range_high=len(database),
+                               init_range_high=len(database) - 1,
 
-                               random_mutation_min_val=0,
-                               random_mutation_max_val=len(database),
+                               mutation_type=mutation_func,
+                               crossover_type=crossover_func,
 
-                               mutation_by_replacement=True,
                                mutation_num_genes=1,
-                               mutation_probability=0.1,
-                               crossover_type='scattered',
+                               K_tournament=3,
+
+                               mutation_probability=0.2,
                                gene_type=int,
                                fitness_func=fitness_function,
                                )
@@ -201,7 +267,8 @@ def GeneticAlgorithm(_rest_df, meals_df, diner_1, diner_2, diner_3):
         print(f'\n----------------- Best solution ------------------\n')
         print(f'Fitness:          {best_fitness}')
         print(f'Hard constraints: {"🏆" if best_fitness > 0.5 else "🛑"}')
-        print(f'Total price:      {sum([dish["price"] for dish in best_solution])} ₪ (limit was {user_input["price"]} ₪)')
+        print(
+            f'Total price:      {sum([dish["price"] for dish in best_solution])} ₪ (limit was {user_input["price"]} ₪)')
         print()
         [print_dish(best_solution, user_input, i) for i in range(len(best_solution))]
 
@@ -218,5 +285,5 @@ if __name__ == '__main__':
     # load database:
     meals_df = pd.read_csv('./data/mealsData.csv')
     rest_df = pd.read_csv('./data/restaurantsData.csv')
-    diner1, diner2, diner3 = _get_diners_constraints('./example_preferences/input_constraints_4.txt')
+    diner1, diner2, diner3 = _get_diners_constraints('./example_preferences/input_constraints_1.txt')
     rest, meal1, meal2, meal3, runtime = GeneticAlgorithm(rest_df, meals_df, diner1, diner2, diner3)
