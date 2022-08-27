@@ -1,10 +1,24 @@
-# הזמנות קבוצתיות מ-Wolt כבעיית אילוצים
-בימינו, הזמנת אוכל משירותי משלוחים דוגמת Wolt הפכה לתופעה נפוצה ויומיומית. תופעה זו הביאה
-איתה בעיה חדשה - כיוון שישנו שפע עצום של מאות מסעדות זמינות בכל רגע נתון, הנסיון לבחור מסעדה
-אחת שתתאים לצרכיה של קבוצת חברים או עובדים הפך לאתגר גדול. מעבר לאילוצים של הסועדים (כגון
-כשרות, צמחונות והעדפות קולינריות), ישנם אילוצים גם מצד המסעדה (כגון שעות פתיחה, רדיוס
-משלוחים ומינימום הזמנה). הבעיה אותה אנחנו מנסים לפתור היא תכנון הזמנת אוכל (בחירת מסעדה
-ובחירת מנות עיקריות מתוכה כמספר הסועדים) ממגוון המסעדות הזמינות ב - Wolt בתל אביב תוך
-שקלול צרכיהם והעדפותיהם של חברי קבוצת סועדים ועמידה בהגבלות המסעדה.
-
-כדי להשתמש יש ליצור קובץ המכיל את ההעדפות של שלושת הסועדים. ניתן לראות בתיקיה קבצים לדוגמא.
+![image](https://user-images.githubusercontent.com/36603609/187044513-49cbe2fe-aaeb-4bd2-aafc-7fa452b285ed.png)
+# PickUsLunch - AI smart assistant for group meal orders
+text here
+## Abilities and limitations
+text here
+## Algorithms used
+text here
+## How to use
+To use the assistant, clone the repo. Then, create a txt file that represents the constraints and preferences of each diner (example files including instructions are found here). After creating the preferences file, you can run the PickUsLunch AI assistant using the one of the following commands:
+```
+python3 main.py <preference_file_path> <output_file_path>
+python3 main.py <preference_file_path> <output_file_path> <algorithm>
+```
+with the following inputs:
+1. preference_file_path - path to the preference file you have created / one of the example prefrences files provided
+2. output_file_path - path to a file wehre the results will be saved to
+3. algorithm (optional) - if not specified, the default algorithm will be ran. If you want, you can choose a specific algorithm from the following list:
+   - naive
+   - dfs
+   - ucs
+   - hill_climbing
+   - stochastic_hill_climbing
+   - simulated_anealing
+   - genetic
