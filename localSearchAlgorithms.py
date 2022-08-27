@@ -395,7 +395,7 @@ class State:
         elif self.restaurant is not None:
             if other.restaurant is None:
                 return False
-            if self.restaurant == other.restaurant and self.meals == self.meals:
+            if str(self)== str(other):
                 return True
         else:
             return True
