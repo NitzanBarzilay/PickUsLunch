@@ -161,7 +161,17 @@ def gain(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
     """
     gain_value = 0
     global count
-    gain_value += O + M + K + V1 + V2 + V3 + G1 + G2 + G3 + A1 + A2 + A3 + PH1 + PH2 + PH3 + number_of_meals
+    gain_value += O + M + K + V1 + V2 + V3 + G1 + G2 + G3 + A1 + A2 + A3 + PH1 + PH2 + PH3
+    if number_of_meals == 0:
+        gain_value += 10 *(O + M + K)
+    elif  number_of_meals==1:
+        gain_value += 10*(V1+G1+A1+PH1)
+    elif number_of_meals == 2:
+        gain_value += 10 * (V2 + G2 + A2 + PH2)
+    elif number_of_meals == 3:
+        gain_value += 10 * (V3 + G3 + A3 + PH3)
+
+    gain_value += number_of_meals
     """
     soft constraints:
     - delivery time in minutes (DT)
@@ -266,39 +276,33 @@ def init_problem(rest_df, meals_df, diner1, diner2, diner3):
         history, action_obj, init_state, constraints, data_rests, data_menu)
 
 
-def run_algorithm(algo, input, rest_df, meals_df, diner1, diner2, diner3):
+def run_algorithm(algo, input, rest_df, meals_df, diner1, diner2, diner3, sa=False):
     problem = init_problem(rest_df, meals_df, diner1, diner2, diner3)
     start = timer()
-    result = algo(problem, input)
-    end = timer()
-    if result is None:
-        print("goal not found")
-        return
-    else:
-        args = gainFunction.user_inputs_to_gain_function_inputs(
-            constraints[0],
-            constraints[1],
-            constraints[2],
-            data_rests[data_rests["name"] == result.state.restaurant],
-            data_menu[data_menu["name"] == result.state.meals[0]],
-            # and data_menu["rest_name"] == state.restaurant],
-            data_menu[data_menu["name"] == result.state.meals[1]],
-            # and data_menu["rest_name"] == state.restaurant],
-            data_menu[data_menu["name"] == result.state.meals[2]]
-        )
-        # delete when done
-        print(
-            f"----------------{end - start} sec, ---------- Loss = {gainFunction.gain(*args)}---- cost = {result.cost}--\n "
-            f'{result.state.restaurant} - {data_rests[data_rests["name"] == result.state.restaurant].values}\n'
-            f"-------------------------------------------\n"
-            f'{result.state.meals[0]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[0])].values}\n'
-            f"-------------------------------------------\n"
-            f'{result.state.meals[1]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[1])].values}\n'
-            f"-------------------------------------------\n"
-            f'{result.state.meals[2]} - {data_menu[(data_menu["rest_name"] == result.state.restaurant) & (data_menu["name"] == result.state.meals[2])].values}\n'
-            f"-------------------------------------------\n"
-            f"{constraints}"
-        )
+    gain = 0
+    while gain==0:
+        if sa:
+            result = algo(problem, iterations_limit=input)
+        else:
+            result = algo(problem, input)
+        end = timer()
+        if result is None or len(result.state.meals) < 3:
+            continue
+        else:
+            args = gainFunction.user_inputs_to_gain_function_inputs(
+                constraints[0],
+                constraints[1],
+                constraints[2],
+                data_rests[data_rests["name"] == result.state.restaurant],
+                data_menu[data_menu["name"] == result.state.meals[0]],
+                # and data_menu["rest_name"] == state.restaurant],
+                data_menu[data_menu["name"] == result.state.meals[1]],
+                # and data_menu["rest_name"] == state.restaurant],
+                data_menu[data_menu["name"] == result.state.meals[2]]
+            )
+            # delete when done
+            gain = gainFunction.gain(*args)
+
     return result.state.restaurant, result.state.meals, end - start
 
 
@@ -377,7 +381,7 @@ def SimulatedAnnealingAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
         :param diner3: list of 3rd diner preferences
         :return: chosen restaurant dataframe (single row), 3 chosen meals dataframes (single row each), runtime (float).
         """
-    return run_algorithm(simulated_annealing, 1000, rest_df, meals_df, diner1, diner2, diner3)
+    return run_algorithm(simulated_annealing, 1000, rest_df, meals_df, diner1, diner2, diner3, True)
 
 
 # ----------------------------------------------  State --------------------------------------------------------------
@@ -538,7 +542,7 @@ class WoltProblem(SearchProblem):
             return self.change_rest_state(action[1])
 
     def is_goal(self, state):
-        print(f"is goal func state : rest = {state.restaurant}, meals = {state.meals}")
+        # print(f"is goal func state : rest = {state.restaurant}, meals = {state.meals}")
         if len(state.meals) < 3:
             return False
         if self.check_constraints(state):
@@ -558,7 +562,7 @@ class WoltProblem(SearchProblem):
             self.data_menu[self.data_menu["name"] == state.meals[2]],
             # and self.data_menu["rest_name"] == state.restaurant],
         )
-        return gainFunction.gain(*args) == 0
+        return check_hard_constraints(*args) == 0
 
     def value(self, state):
         if state.restaurant is None:
@@ -901,4 +905,4 @@ if __name__ == "__main__":
     data_rests = df.general_df
     data_menu = df.menus_df
     constraints = [*get_diners_constraints(sys.argv[1])]
-    StochasticHillClimbingAlgorithm(data_rests, data_menu, *constraints)
+    HillClimbingAlgorithm(data_rests, data_menu, *constraints)
