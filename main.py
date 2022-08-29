@@ -273,7 +273,7 @@ def get_meals_result(V, G, A, S, PH, PS) -> str:
     return result
 
 
-def save_results(results: list[pd.DataFrame], filename: str, diner1, diner2, diner3, algo_name) -> None:
+def save_results(results, filename, diner1, diner2, diner3, algo_name):
     """
     prints formatted results and saves them to the given filename.
     :param results: a list of 4 dataframes (one for the restaurant and one for each of

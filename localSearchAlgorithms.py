@@ -21,8 +21,6 @@ HUNGRY_MINUTES = 45
 MUST = 1
 MUST_NOT = 2
 
-count = 0
-
 
 def user_inputs_to_gain_function_inputs(diner1_inputs, diner2_inputs, diner3_inputs, rest, meal1_df=None,
                                         meal2_df=None,
@@ -163,9 +161,9 @@ def gain(O, M, K, DT, D, RD, R, C, V1, V2, V3, G1, G2, G3, A1, A2, A3, S1, S2, S
     global count
     gain_value += O + M + K + V1 + V2 + V3 + G1 + G2 + G3 + A1 + A2 + A3 + PH1 + PH2 + PH3
     if number_of_meals == 0:
-        gain_value += 10 *(O + M + K)
-    elif  number_of_meals==1:
-        gain_value += 10*(V1+G1+A1+PH1)
+        gain_value += 10 * (O + M + K)
+    elif number_of_meals == 1:
+        gain_value += 10 * (V1 + G1 + A1 + PH1)
     elif number_of_meals == 2:
         gain_value += 10 * (V2 + G2 + A2 + PH2)
     elif number_of_meals == 3:
@@ -273,14 +271,14 @@ def init_problem(rest_df, meals_df, diner1, diner2, diner3):
     constraints = diner1, diner2, diner3
     init_state = State(rest=None, meals=[])
     return WoltProblem(
-        history, action_obj, init_state, constraints, data_rests, data_menu)
+        history, action_obj, init_state, constraints, rest_df, meals_df)
 
 
 def run_algorithm(algo, input, rest_df, meals_df, diner1, diner2, diner3, sa=False):
     problem = init_problem(rest_df, meals_df, diner1, diner2, diner3)
     start = timer()
-    gain = 0
-    while gain==0:
+    score = 0
+    while score == 0:
         if sa:
             result = algo(problem, iterations_limit=input)
         else:
@@ -290,20 +288,20 @@ def run_algorithm(algo, input, rest_df, meals_df, diner1, diner2, diner3, sa=Fal
             continue
         else:
             args = gainFunction.user_inputs_to_gain_function_inputs(
-                constraints[0],
-                constraints[1],
-                constraints[2],
-                data_rests[data_rests["name"] == result.state.restaurant],
-                data_menu[data_menu["name"] == result.state.meals[0]],
-                # and data_menu["rest_name"] == state.restaurant],
-                data_menu[data_menu["name"] == result.state.meals[1]],
-                # and data_menu["rest_name"] == state.restaurant],
-                data_menu[data_menu["name"] == result.state.meals[2]]
+                diner1,
+                diner2,
+                diner3,
+                rest_df[rest_df["name"] == result.state.restaurant],
+                meals_df[meals_df["name"] == result.state.meals[0]],
+                meals_df[meals_df["name"] == result.state.meals[1]],
+                meals_df[meals_df["name"] == result.state.meals[2]]
             )
-            # delete when done
-            gain = gainFunction.gain(*args)
+            score = gainFunction.gain(*args)
 
-    return result.state.restaurant, result.state.meals, end - start
+    return rest_df[rest_df["name"] == result.state.restaurant], \
+           meals_df[meals_df["name"] == result.state.meals[0]], \
+           meals_df[meals_df["name"] == result.state.meals[1]], \
+           meals_df[meals_df["name"] == result.state.meals[2]], end - start
 
 
 def DFSAlgorithm(rest_df, meals_df, diner1, diner2, diner3):
@@ -399,7 +397,7 @@ class State:
         elif self.restaurant is not None:
             if other.restaurant is None:
                 return False
-            if str(self)== str(other):
+            if str(self) == str(other):
                 return True
         else:
             return True
@@ -896,13 +894,3 @@ class WoltProblem(SearchProblem):
         if diners_kosher and not rest["kosher"].values[0]:
             return MAX_COST_REST
         return 0
-
-
-# ---------------------------------------------- main  ---------------------------------------------------------------
-if __name__ == "__main__":
-    df = dataFrameParser.WoltParser([], init_files=False)
-    df.get_dfs()
-    data_rests = df.general_df
-    data_menu = df.menus_df
-    constraints = [*get_diners_constraints(sys.argv[1])]
-    HillClimbingAlgorithm(data_rests, data_menu, *constraints)
