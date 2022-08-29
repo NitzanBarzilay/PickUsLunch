@@ -268,7 +268,7 @@ def GeneticAlgorithm(_rest_df, meals_df, diner_1, diner_2, diner_3):
                 print()
 
     end = time.time()
-    runtime = start - end
+    runtime = end - start
     best_solution = [best_database.iloc[i] for i in best_solution]
     if __name__ == '__main__':
         [print(inp) for inp in base_user_input.items()]
@@ -288,7 +288,14 @@ def GeneticAlgorithm(_rest_df, meals_df, diner_1, diner_2, diner_3):
         pd.Series(best_res).rolling(window=100).mean().plot()
         pd.Series(np.ones(len(best_res)) * 0.5).plot(style='--')
 
-    return best_rest_input, best_solution[0], best_solution[1], best_solution[2], runtime
+
+    meal1 = meals_df.loc[(meals_df["name"] == best_solution[0]['name']) & (meals_df["rest_name"] == best_solution[0]['rest_name'])]
+    meal2 = meals_df.loc[(meals_df["name"] == best_solution[1]['name']) & (meals_df["rest_name"] == best_solution[1]['rest_name'])]
+    meal3 = meals_df.loc[(meals_df["name"] == best_solution[2]['name']) & (meals_df["rest_name"] == best_solution[2]['rest_name'])]
+    res_rest = rest_df.reset_index().loc[ rest_df.reset_index()["name"] == best_solution[1].rest_name]
+
+    return res_rest, meal1, meal2, meal3, runtime
+    # return best_rest_input, best_solution[0], best_solution[1], best_solution[2], runtime
 
 
 if __name__ == '__main__':
