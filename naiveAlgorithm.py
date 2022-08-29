@@ -99,10 +99,10 @@ def NaiveAlgorithm(restaurants_list, menus_list, d1, d2, d3):
 
                 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> TODO
                 # chosen_restaurant = restaurant_name
-                # chosen_restaurant_score = score
                 # chosen_restaurant_meals = permutation
                 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< TODO
 
+                chosen_restaurant_score = score
                 ret_restaurant = restaurant_row
                 ret_meal1 = meal1
                 ret_meal2 = meal2
