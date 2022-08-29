@@ -10,7 +10,7 @@ from dataFrameParser import WoltParser
 from gainFunction import user_inputs_to_gain_function_inputs, gain
 from naiveAlgorithm import NaiveAlgorithm
 from geneticAlgorithm import GeneticAlgorithm
-from localSearchAlgorithms import DFSAlgorithm, UCSAlgorithm, AStarAlgorithm, HillClimbingAlgorithm, \
+from localSearchAlgorithms import DFSAlgorithm, UCSAlgorithm, AstarAlgorithm, HillClimbingAlgorithm, \
     StochasticHillClimbingAlgorithm, SimulatedAnnealingAlgorithm
 
 INPUT_FILE = 1
@@ -303,7 +303,7 @@ def save_results(results: list[pd.DataFrame], filename: str, diner1, diner2, din
     results += f'Total price: {sum([meal["price"].values[0] for meal in [meal1, meal2, meal3]])}\n'
     # TODO compare percentiles
     results += f"Runtime: {runtime}\n"
-    with open(filename, 'w') as f:
+    with open(filename, 'w', encoding="utf-8") as f:
         f.write(str(results))
     print(f"DONE! Results saved to {filename}. Showing results:")
     print(results)
@@ -322,7 +322,7 @@ def choose_algorithm(algorithm: str):
     elif algorithm == "ucs":
         return UCSAlgorithm
     elif algorithm == "astar":
-        return AStarAlgorithm
+        return AstarAlgorithm
     elif algorithm == "hill_climbing":
         return HillClimbingAlgorithm
     elif algorithm == "stochastic_hill_climbing":
