@@ -325,8 +325,8 @@ def choose_algorithm(algorithm: str):
         return AstarAlgorithm
     elif algorithm == "hill_climbing":
         return HillClimbingAlgorithm
-    elif algorithm == "stochastic_hill_climbing":
-        return StochasticHillClimbingAlgorithm
+    # elif algorithm == "stochastic_hill_climbing":
+    #     return StochasticHillClimbingAlgorithm
     elif algorithm == "simulated_annealing":
         return SimulatedAnnealingAlgorithm
     elif algorithm == "genetic":
@@ -345,7 +345,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 4:  # specified algorithm
         chosen_algorithm = sys.argv[ALGORITHM]
     else:  # choose default algorithm
-        chosen_algorithm = "genetic"  # TODO decide on default algorithm
+        chosen_algorithm = "hill_climbing"
     algorithm = choose_algorithm(chosen_algorithm)
     results = algorithm(rest_df, meals_df, diner1, diner2, diner3)
     save_results(results, sys.argv[OUTPUT_FILE], diner1, diner2, diner3, chosen_algorithm)

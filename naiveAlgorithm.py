@@ -57,20 +57,6 @@ def NaiveAlgorithm(restaurants_list, menus_list, d1, d2, d3):
         meals_product = list(product(meals, repeat=NUMBER_OF_EATERS))
         num_of_per += meals_product.__len__()
 
-        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> TODO
-        # optimize naive algorithm
-        # is_kosher = d1[0] | d2[0] | d3[0]
-        # is_vegetarian = d1[1] | d2[1] | d3[1]
-        # is_GlutenFree = d1[2] | d2[2] | d3[2]
-        # is_vegetarian_and_GlutenFree = (d1[1] & d1[2]) | (d2[1] & d2[2]) | (d3[1] & d3[2])
-        #
-        # if (restaurant_row["kosher"].values[0] == False and is_kosher) or \
-        #         (True not in meals_df["vegetarian"].unique() and is_vegetarian) or \
-        #         (True not in meals_df["GF"].unique() and is_GlutenFree) or \
-        #         (True not in meals_df["veg_and_gf"].unique() and is_vegetarian_and_GlutenFree):
-        #     idx += 1
-        #     continue
-        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< TODO
 
         # calculate the score of each meal combination
         for permutation in tqdm(meals_product, position=1, desc=f'Restaurant - {idx}/{num_of_restaurants}', leave=False,
@@ -84,23 +70,8 @@ def NaiveAlgorithm(restaurants_list, menus_list, d1, d2, d3):
             # calculate the score of the permutation
             score = gainFunction.gain(*params)
 
-
-            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> TODO
-            # open a csv file and save the permutation and the score
-            # if score > 0:
-            #     with open(f"results/naive_search_results_input_constraints.csv", "a",
-            #               encoding="utf-8") as f:
-            #         f.write(f"{restaurant_name},{permutation[0]},{permutation[1]},{permutation[2]},{score}\n")
-            # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< TODO
-
-
             # if the score is better than the current best score, save the permutation and the score
             if chosen_restaurant_score is None or chosen_restaurant_score < score:
-
-                # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> TODO
-                # chosen_restaurant = restaurant_name
-                # chosen_restaurant_meals = permutation
-                # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< TODO
 
                 chosen_restaurant_score = score
                 ret_restaurant = restaurant_row
@@ -113,13 +84,5 @@ def NaiveAlgorithm(restaurants_list, menus_list, d1, d2, d3):
 
     # calculate the time of the last iteration
     time_elapsed = time.time() - start_time
-
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> TODO
-    # print(f'\nTime elapsed: {datetime.timedelta(seconds=time_elapsed)}')
-    # print(f'Number of permutations - {num_of_per}')
-    # print(f'Chosen restaurant - {chosen_restaurant}')
-    # print(f'Chosen restaurant score - {chosen_restaurant_score}')
-    # print(f'Chosen restaurant meals - {chosen_restaurant_meals}')
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< TODO
 
     return ret_restaurant, ret_meal1, ret_meal2, ret_meal3, ret_runtime
