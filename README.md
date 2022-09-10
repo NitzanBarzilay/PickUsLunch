@@ -5,7 +5,9 @@ We present PickUsLunch - a smart group meal order AI assistant, that takes into 
 The assistant will need 10 simple preferences from each diner in the group, and in return it will provide you with a restaurant and list on meals for it's menu that best matches everybody's needs and likes ouf of Wolt's restaurants variaty. 
 This is a first demo version (which we plan to further extend in the future), which currently has the following limitations:
 * The assistant works only on groups of exactly 3 diners
-* The assistant will choose a restaurant that were availably via Wolt _in Tel Aviv_ during august 2022
+* The assistant will choose a restaurant that were availably via Wolt _in Tel Aviv_ during august 2022.
+
+
 For information regarding the algorithms used and their performance, see [the project's review](https://github.com/NitzanBarzilay/PickUsLunch/blob/main/PickUsLunch%20-%20Project%20review%20(Hebrew).pdf) (only available in Hebrew). 
 
 ## How to use
