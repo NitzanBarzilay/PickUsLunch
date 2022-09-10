@@ -6,6 +6,7 @@ The assistant will need 10 simple preferences from each diner in the group, and 
 This is a first demo version (which we plan to further extend in the future), which currently has the following limitations:
 * The assistant works only on groups of exactly 3 diners
 * The assistant only works on restaurant that were availably via Wolt in Tel Aviv during august 2022
+For information regarding the algorithms used and their performance, see [the project's review](https://github.com/NitzanBarzilay/PickUsLunch/blob/main/PickUsLunch%20-%20Project%20review%20(Hebrew).pdf) (only available in Hebrew). 
 
 ## How to use
 To use the assistant, clone the repo and make sure you have the required packages installed on your environment. 
